@@ -28,8 +28,8 @@ python3 cite_check.py ./repo --ci            # quiet; exit 1 on failure
 
 | Kind | What is verified |
 |---|---|
-| **DOI** | Registered in Crossref — and with `--titles`, whether the registered title matches the title it is cited under. A DOI that resolves to a *different paper* is the failure mode that reads as correct and isn't. |
-| **PMID** | Resolves in NCBI eutils; same title check. |
+| **DOI** | Registered in Crossref. With `--titles`, also compares the registered title to nearby text — **advisory only, see below**. |
+| **PMID** | Resolves in NCBI eutils; same. |
 | **URL** | Live status, separating genuine 404/410 from bot mitigation. |
 | **Statute** | Fetches the section and reports its **actual heading**, so a mis-cited statute is visible. |
 
@@ -46,7 +46,36 @@ Severities: `blocker` (dead or wrong), `major` (unreachable), `unknown`
 - **Titles are only compared when the extracted candidate reads like prose.**
   No URLs, no markup, four words minimum, 62% letters minimum.
 
-That last rule is load-bearing. The first version accepted any quoted string
+### Title matching is advisory, and here is why
+
+The original design treated "DOI resolves but to a different paper" as a
+blocker — it looked like the sharpest check available, because a DOI attached
+to the wrong title reads as correct and isn't.
+
+It does not work reliably on prose. Tested against a 222-source reference, all
+seven title mismatches were wrong, and wrong in an instructive way: the text
+nearest a citation was a **quotation from the source**, not its title.
+
+```
+near-text:  "a war on consciousness itself"
+registered: "Cognitive liberty and the psychedelic humanities"
+```
+
+That is a correctly quoted, correctly cited passage. In a document that quotes
+its sources — which is what a well-sourced document does — the quoted text by a
+citation is more often a quotation than a title. Without structured
+bibliographic markup there is no reliable way to tell them apart.
+
+So a title mismatch is reported as `unknown` with CHECK BY HAND, and never
+fails a build. **The DOI-registration check is the reliable signal**; that is
+what caught all six unregistered DOIs the human audit found.
+
+The general rule this taught: a check that cannot distinguish its failure mode
+from normal correct practice is not a gate, whatever it feels like.
+
+---
+
+The prose-only title rule is load-bearing. The first version accepted any quoted string
 near a citation, so URLs and HTML fragments were compared against registered
 titles and reported as mismatches: **110 of 138 findings on the first run were
 that bug**. A missed title check is invisible; a false "wrong paper" sends

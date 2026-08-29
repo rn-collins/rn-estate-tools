@@ -48,11 +48,14 @@ BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.3
 TEXT_EXT = {".html", ".htm", ".md", ".mdx", ".txt", ".json", ".js", ".ts",
             ".jsx", ".tsx", ".csv", ".xml", ".mjs", ".mts"}
 SKIP_DIR = {".git", "node_modules", ".next", "dist", "build", ".vercel",
-            "coverage", "__pycache__", ".astro"}
+            "coverage", "__pycache__", ".astro",
+            # Archived copies of third-party pages. Links inside someone
+            # else's mirrored page are not this project's citations.
+            "downloaded", "mirrors", "snapshots", "web-archive"}
 
-DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;:A-Za-z0-9]+(?:\([^)\s]*\)[-._;:A-Za-z0-9]*)*", re.I)
+DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;:()/A-Za-z0-9]*[A-Za-z0-9)]", re.I)
 PMID_RE = re.compile(r"\bPMID:?\s*(\d{6,9})\b", re.I)
-URL_RE = re.compile(r"https?://[^\s\"'<>)\]}\\]+", re.I)
+URL_RE = re.compile(r"https?://[^\s\"'<>)\]},\\]+", re.I)
 
 # Statute patterns worth resolving to an actual text.
 STATUTE_RE = re.compile(
@@ -134,9 +137,15 @@ def check_doi(doi, cited_title=None):
         ov = title_overlap(cited_title, real)
         out["title_overlap"] = round(ov, 2)
         if ov < 0.34:
-            out.update(ok=False, severity="blocker",
-                       reason=(f"DOI resolves but to a DIFFERENT paper. "
-                               f"cited: {cited_title[:90]!r} | registered: {real[:90]!r}"))
+            # Advisory, never a blocker. In a document that quotes its sources,
+            # the quoted text nearest a citation is usually a quotation from
+            # the work, not the work's title — so a low overlap is far more
+            # often this tool guessing wrong than the citation being wrong.
+            # Worth a human glance; never worth failing a build over.
+            out.update(ok=None, severity="unknown",
+                       reason=("possible title mismatch — CHECK BY HAND, the "
+                               "nearby text may just be a quotation. "
+                               f"near-text: {cited_title[:80]!r} | registered: {real[:80]!r}"))
     return out
 
 
@@ -160,18 +169,32 @@ def check_pmid(pmid, cited_title=None):
         ov = title_overlap(cited_title, real)
         out["title_overlap"] = round(ov, 2)
         if ov < 0.34:
-            out.update(ok=False, severity="blocker",
-                       reason=(f"PMID resolves to a different paper. "
-                               f"cited: {cited_title[:90]!r} | actual: {real[:90]!r}"))
+            out.update(ok=None, severity="unknown",
+                       reason=("possible title mismatch — CHECK BY HAND, the "
+                               "nearby text may just be a quotation. "
+                               f"near-text: {cited_title[:80]!r} | actual: {real[:80]!r}"))
     return out
 
 
+API_ROOT = re.compile(r"^https?://(api\.|[^/]*api\.)|/api(/[a-z]{2})?(/v?[\d.]+)?/?$|/v[\d.]+/?$", re.I)
+
+
 def check_url(url):
-    url = url.rstrip(".,;:)]}'\"")
+    url = url.rstrip(".,;:)]}'\"`")
     host = (urllib.parse.urlparse(url).netloc or "").lower().lstrip("www.")
+
+    # An API base URL is infrastructure, not a citation. Roots legitimately
+    # 404 because you are meant to call an endpoint beneath them.
+    if API_ROOT.search(url):
+        return dict(kind="url", id=url, ok=None, severity="unknown",
+                    reason="API base URL, not a citation — not checked")
+
     st, _ = _get(url, ua=BROWSER_UA, method="HEAD")
-    if st in (0, 403, 405, 401, 406, 501, 999):
-        st, _ = _get(url, ua=BROWSER_UA)          # some hosts only answer GET
+    # Retry GET on 404 as well: several hosts (support.google.com among them)
+    # 404 a HEAD and serve the same URL fine on GET. Without this retry a
+    # working page is reported as a dead citation.
+    if st in (0, 403, 404, 405, 401, 406, 501, 999):
+        st, _ = _get(url, ua=BROWSER_UA)
     blocked = any(host == b or host.endswith("." + b) for b in BOT_BLOCKERS)
     if st in (200, 301, 302, 303, 307, 308):
         return dict(kind="url", id=url, ok=True, severity="ok", status=st,
@@ -262,6 +285,10 @@ def scan(root, want_titles=False):
                 continue
             if len(text) > 8_000_000:
                 continue
+            # Zero-width and bidi marks ride along inside copied URLs and make
+            # an otherwise-live link look dead.
+            text = text.translate({0x200b: None, 0x200c: None, 0x200d: None,
+                                   0xfeff: None, 0x200e: None, 0x200f: None})
             rel = os.path.relpath(path, root)
 
             def add(key, kind, ident, pos):
@@ -290,8 +317,18 @@ def scan(root, want_titles=False):
                                         "vercel.app/_vercel", "w3.org", "schema.org",
                                         "fonts.googleapis.com", "fonts.gstatic.com",
                                         "googletagmanager.com", "google-analytics.com",
-                                        "vitals.vercel-insights.com")):
+                                        "vitals.vercel-insights.com",
+                                        # XML/RDF namespace declarations are not citations
+                                        "ogp.me/ns", "purl.org/dc", "xmlns", "/TR/xhtml",
+                                        "opengraphprotocol.org", "creativecommons.org/ns")):
                     continue
+                u = u.rstrip("*_~")          # markdown emphasis bleed
+                if "${" in u or "`" in u or "{{" in u:
+                    continue          # unrendered template literal, not a URL
+                if "…" in u or "..." in u or u.endswith((".local", ".test", ".invalid")):
+                    continue          # elided display string or local-only host
+                if re.search(r"(^|/)(tests?|__tests__|spec|fixtures?|e2e)(/|$)", rel):
+                    continue          # test fixtures are not citations
                 if fn in ("vercel.json", "next.config.js", "next.config.mjs",
                           "next.config.ts", "package.json", "package-lock.json",
                           "manifest.json", "site.webmanifest"):
