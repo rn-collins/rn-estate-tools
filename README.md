@@ -135,16 +135,24 @@ is the same as no check.
 
 Six builds audited. Citation defects found:
 
-| Build | Real defects |
-|---|---|
-| `ownership-platform` | 43 dead on live pages about named people, +28 in draft dossiers |
-| `destig-toolkit` | 25, incl. 7 DOIs registered nowhere |
-| `law-communication-library` | 1 URL — plus six articles resting on the wrong statute |
+| Build | Dead / wrong | Unreachable | Verified | Notes |
+|---|---|---|---|---|
+| `ownership-platform` | 64 | 6 | 723 | 43 of them on live pages about named living people |
+| `destig-toolkit` | 15 | 11 | 246 | incl. 7 DOIs registered nowhere |
+| `antithesis-ask-a-neuroscientist` | 5 | 2 | 112 | four are FDA pages that moved |
+| `atelier` | 4 | 1 | 103 | |
+| `law-communication-library` | 1 | 0 | 196 | plus six articles resting on the wrong statute — a defect no link checker can see |
 
-Independent agreement is the reason to trust these: on `destig-toolkit`, a
+These are the numbers after seven rounds of false-positive elimination. The
+first run on `destig-toolkit` reported **127**; the true figure is 15.
+
+Independent agreement is the reason to trust them. On `destig-toolkit` a
 reasoning agent reading the document and this script querying Crossref
-converged on the **same six unregistered DOIs**. On `ownership-platform` the
-agent found 41 dead links on live pages and this found 43.
+converged on the **same six unregistered DOIs**, and on the same dead URLs. On
+`ownership-platform` the agent found 41 dead links on live pages; this found
+43. Where two unrelated methods agree, the finding is real. Where they differ
+by 100x, the instrument is broken — which is how every one of those seven bugs
+was caught.
 
 ---
 
