@@ -156,6 +156,31 @@ was caught.
 
 ---
 
+## Nine false-positive classes, and why they are documented
+
+Each was caught the same way — by a second method disagreeing with this tool,
+never by the tool noticing itself:
+
+1. Title extraction took URLs and HTML fragments as cited titles (110 of 138
+   findings on the first run).
+2. CSP directives in `vercel.json` checked as citations.
+3. DOI regex broke at parentheses, reporting valid DOIs unregistered.
+4. URL regex ran past commas, so CSV column bleed produced guaranteed 404s.
+5. XML namespace URIs and archived third-party mirrors scanned as sources.
+6. HEAD returned 404 where GET returns 200, inflating dead counts everywhere.
+7. Template literals and test fixtures treated as live URLs.
+8. Title matching itself — demoted to advisory, because near-citation text is
+   usually a quotation.
+9. **TLS negotiation.** Python's client is refused outright by some hosts
+   (`TLSV1_ALERT_PROTOCOL_VERSION`) that serve curl and browsers a clean 200.
+   Seven turned up in one scan. `_get` now falls back to curl on any TLS
+   error, because a citation must never be called dead over our own handshake.
+
+The pattern worth keeping: a checker is only trustworthy where a second,
+unrelated method agrees with it. Where two methods converge the finding is
+real; where they differ by an order of magnitude, suspect the instrument
+first.
+
 ## Adding a bot-blocked host
 
 If a host is reported dead but loads in a browser, add it to `BOT_BLOCKERS` in

@@ -79,6 +79,26 @@ BOT_BLOCKERS = {
 }
 
 
+def _curl(url, ua, timeout):
+    """Fall back to curl. Python's TLS stack is refused outright by some hosts
+    (TLSV1_ALERT_PROTOCOL_VERSION) that serve curl and browsers a clean 200 —
+    seven such hosts turned up in one estate scan, every one reported dead by
+    urllib and alive by everything else. A citation must not be called dead
+    because of our own client's handshake."""
+    import subprocess
+    try:
+        r = subprocess.run(
+            ["curl", "-sL", "-m", str(timeout), "-A", ua, "-w", "\n__STATUS__%{http_code}", url],
+            capture_output=True, text=True, timeout=timeout + 8)
+        out = r.stdout
+        if "__STATUS__" not in out:
+            return 0, ""
+        body, _, code = out.rpartition("\n__STATUS__")
+        return int(code.strip() or 0), body
+    except Exception:
+        return 0, ""
+
+
 def _get(url, ua=UA, timeout=25, method="GET"):
     req = urllib.request.Request(url, headers={"User-Agent": ua, "Accept": "*/*"},
                                  method=method)
@@ -88,7 +108,10 @@ def _get(url, ua=UA, timeout=25, method="GET"):
             return r.status, body.decode("utf-8", "replace")
     except urllib.error.HTTPError as e:
         return e.code, ""
-    except Exception:
+    except Exception as e:
+        # TLS negotiation failures are about our client, not the server.
+        if "SSL" in type(e).__name__ or "SSL" in str(e) or "CERTIFICATE" in str(e).upper():
+            return _curl(url, ua, timeout)
         return 0, ""
 
 
