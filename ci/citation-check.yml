@@ -1,0 +1,151 @@
+# Citation integrity gate.
+#
+# Drop this at .github/workflows/citation-check.yml in any repo that publishes
+# sourced claims. It fails the build when a citation is dead or points at a
+# different work than the one cited.
+#
+# Why this exists: an estate audit found the same defect in three separate
+# repositories — accurate prose, wrong pointer. Real articles with fabricated
+# ID numbers. DOIs registered nowhere. Cited titles matching no paper that
+# exists. A tobacco statute cited for psilocybin employment law. None of it is
+# catchable by a link checker, because a link checker only asks whether a URL
+# returns 200 — not whether the source says what the citation claims it says.
+#
+# Bot-blocked hosts (Reuters, NYT, SEC, DEA, Justia, ScienceDirect …) are
+# reported separately and never fail the build; they are unverifiable by
+# machine, not broken.
+
+name: Citation check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly. Citations rot on their own — agencies reorganise, DOIs move,
+    # postings expire. A green build in March means nothing in September.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: citation-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch the checker
+        run: |
+          curl -fsSL -o cite_check.py \
+            https://raw.githubusercontent.com/rn-collins/rn-estate-tools/main/cite_check.py
+          # Pin by commit once the tools repo is published, so a change to the
+          # checker cannot silently change what this gate enforces.
+
+      - name: Verify every citation
+        id: check
+        env:
+          CITE_CHECK_CONTACT: ${{ vars.CITE_CHECK_CONTACT || 'collins.ra@husky.neu.edu' }}
+        run: |
+          set +e
+          python3 cite_check.py . --titles --json citation-report.json
+          echo "exit=$?" >> "$GITHUB_OUTPUT"
+          set -e
+
+      - name: Summarise
+        if: always()
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          try:
+              rows = json.load(open("citation-report.json"))
+          except Exception:
+              print("### Citation check\n\nNo report produced.")
+              raise SystemExit
+
+          bad = [r for r in rows if r["severity"] in ("blocker", "major")]
+          unk = [r for r in rows if r["severity"] == "unknown"]
+          ok  = [r for r in rows if r["severity"] == "ok"]
+
+          print("### Citation check\n")
+          print(f"**{len(ok)} verified · {len(bad)} broken · "
+                f"{len(unk)} unverifiable (bot-blocked)**\n")
+
+          if bad:
+              print("| Severity | Type | Citation | Problem | Where |")
+              print("|---|---|---|---|---|")
+              for r in bad[:60]:
+                  where = ", ".join(r["sites"][:2])
+                  ident = str(r["id"])[:70].replace("|", "\\|")
+                  why = r["reason"][:150].replace("|", "\\|")
+                  print(f"| {r['severity']} | {r['kind']} | `{ident}` | {why} | {where} |")
+              if len(bad) > 60:
+                  print(f"\n_+{len(bad) - 60} more in the artifact._")
+          else:
+              print("Every citation resolves, and every DOI/PMID title matches "
+                    "the work it is cited as.")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: citation-report
+          path: citation-report.json
+          retention-days: 90
+
+      # A weekly cron that only turns the run red gets ignored. File an issue
+      # so decayed citations surface where the work actually happens.
+      - name: Open an issue on scheduled failure
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let rows = [];
+            try { rows = JSON.parse(fs.readFileSync('citation-report.json', 'utf8')); }
+            catch (e) { return; }
+            const bad = rows.filter(r => ['blocker', 'major'].includes(r.severity));
+            if (!bad.length) return;
+
+            const title = `Citation decay: ${bad.length} citation(s) no longer verify`;
+            const body = [
+              `The weekly citation check found ${bad.length} citation(s) that do not verify.`,
+              '',
+              ...bad.slice(0, 40).map(r =>
+                `- **${r.severity}** \`${r.id}\` — ${r.reason}\n  _at ${r.sites.slice(0,3).join(', ')}_`),
+              bad.length > 40 ? `\n…and ${bad.length - 40} more. See the run artifact.` : '',
+            ].join('\n');
+
+            const { data: open } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'citation-decay',
+            });
+            if (open.length) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: open[0].number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['citation-decay'],
+              });
+            }
+
+      - name: Fail the build if any citation is broken
+        if: steps.check.outputs.exit != '0'
+        run: |
+          echo "::error::Citations failed verification. See the job summary."
+          exit 1
