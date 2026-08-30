@@ -1,0 +1,86 @@
+diff --git a/index.html b/index.html
+index 1b51b33..fc5a363 100644
+--- a/index.html
++++ b/index.html
+@@ -4,19 +4,19 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Set for Life · The LinkedIn Networking System for Law Students</title>
+-<meta name="description" content="The documented LinkedIn networking system that produced seven positions, a 26% cold reply rate, and 2,862 professional connections during one law school year. Self-paced course. $67. Lifetime access.">
++<meta name="description" content="The documented LinkedIn networking system that produced seven positions, a 26% cold reply rate, and 2,862 professional connections during one law school year. Self-paced course. $197. Lifetime access.">
+ <meta name="author" content="RN Collins">
+ <meta name="robots" content="index, follow">
+ <meta name="theme-color" content="#DF7B58">
+ 
+ <meta property="og:title" content="Set for Life · The LinkedIn Networking System for Law Students">
+-<meta property="og:description" content="Seven positions. One 1L year. Zero from job boards. The documented system, on a self-paced course. $67. Lifetime access.">
++<meta property="og:description" content="Seven positions. One 1L year. Zero from job boards. The documented system, on a self-paced course. $197. Lifetime access.">
+ <meta property="og:type" content="website">
+ <meta property="og:url" content="https://set-for-life.vercel.app/">
+ <meta property="og:image" content="https://set-for-life.vercel.app/og-image.png">
+ <meta name="twitter:card" content="summary_large_image">
+ <meta name="twitter:title" content="Set for Life · LinkedIn Networking for Law Students">
+-<meta name="twitter:description" content="Seven positions. One 1L year. Zero from job boards. $67.">
++<meta name="twitter:description" content="Seven positions. One 1L year. Zero from job boards. $197.">
+ <meta name="twitter:image" content="https://set-for-life.vercel.app/og-image.png">
+ 
+ <link rel="canonical" href="https://set-for-life.vercel.app/">
+@@ -818,7 +818,7 @@ footer {
+       <li><a href="#system">The System</a></li>
+       <li><a href="#proof">Proof</a></li>
+       <li><a href="#faq">FAQ</a></li>
+-      <li><a href="#enroll" class="nav-cta">Enroll · $67</a></li>
++      <li><a href="#enroll" class="nav-cta">Enroll · $197</a></li>
+     </ul>
+   </div>
+ </nav>
+@@ -853,7 +853,7 @@ footer {
+         </div>
+       </div>
+       <div class="hero-ctas">
+-        <a href="#enroll" class="btn btn-primary">Enroll for $67</a>
++        <a href="#enroll" class="btn btn-primary">Enroll for $197</a>
+         <a href="#system" class="btn btn-ghost">See what is inside</a>
+       </div>
+     </div>
+@@ -1250,11 +1250,11 @@ footer {
+       </div>
+       <div class="faq-item">
+         <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">What is the refund policy?</button>
+-        <div class="faq-a">Fourteen days, no questions asked. If you run the system for two weeks and it does not produce results, email collins.ra@northeastern.edu and I will refund the full $67. The system is designed to work in fourteen days at the latest. If it does not, that is on the system, not on you.</div>
++        <div class="faq-a">Fourteen days, no questions asked. If you run the system for two weeks and it does not produce results, email collins.ra@northeastern.edu and I will refund the full $197. The system is designed to work in fourteen days at the latest. If it does not, that is on the system, not on you.</div>
+       </div>
+       <div class="faq-item">
+         <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">When does the course launch?</button>
+-        <div class="faq-a">Founding cohort access opens Q3 2026. Enrollment now reserves your spot at $67 (the price will rise after launch). Lifetime access plus every future update is locked at the price you pay today. Email collins.ra@northeastern.edu with questions.</div>
++        <div class="faq-a">Founding cohort access opens Q3 2026. Enrollment now reserves your spot at $197 (the price will rise after launch). Lifetime access plus every future update is locked at the price you pay today. Email collins.ra@northeastern.edu with questions.</div>
+       </div>
+     </div>
+   </div>
+@@ -1272,7 +1272,7 @@ footer {
+     </div>
+     <div class="pricing-card">
+       <div class="pricing-eyebrow">Founding Access · Lifetime</div>
+-      <div class="pricing-price"><span class="currency">$</span>67</div>
++      <div class="pricing-price"><span class="currency">$</span>197</div>
+       <div class="pricing-sub">One-time payment</div>
+       <ul class="pricing-includes">
+         <li>Eight-module self-paced course</li>
+@@ -1282,7 +1282,7 @@ footer {
+         <li>Lifetime updates on every new release</li>
+         <li>Fourteen-day no-questions refund</li>
+       </ul>
+-      <a href="mailto:collins.ra@northeastern.edu?subject=Set+for+Life+Enrollment" class="btn btn-primary btn-block" data-cta="enroll-primary" aria-label="Enroll in Set for Life for $67">Enroll for $67</a>
++      <a href="mailto:collins.ra@northeastern.edu?subject=Set+for+Life+Enrollment" class="btn btn-primary btn-block" data-cta="enroll-primary" aria-label="Enroll in Set for Life for $197">Enroll for $197</a>
+       <div class="pricing-note">Secure checkout via Gumroad · Email delivery on purchase</div>
+     </div>
+   </div>
+@@ -1296,7 +1296,7 @@ footer {
+     <h2>Most people read three networking books.<br><em>Set for Life buyers send their first message in 48 hours.</em></h2>
+     <p>The window does not stay open forever. The students who arrive at 1L summer with positions in hand did not start in 1L summer. They started before law school began. You can too. The system is the same.</p>
+     <div class="hero-ctas">
+-      <a href="#enroll" class="btn btn-primary">Enroll for $67</a>
++      <a href="#enroll" class="btn btn-primary">Enroll for $197</a>
+       <a href="mailto:collins.ra@northeastern.edu?subject=Set+for+Life+question" class="btn btn-ghost">Ask a question</a>
+     </div>
+   </div>

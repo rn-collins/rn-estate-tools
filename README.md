@@ -217,6 +217,20 @@ build pass while it was pointing users at dead pages.
 Both were found the same way as the false positives: by hand-checking a
 result the tool called clean.
 
+## And one more false positive, from a WAF that changes its mind
+
+`publiccounsel.net` — the Massachusetts Committee for Public Counsel Services,
+the state public defender — answered 404 during one scan and 403 to every
+request a minute later, including to a path invented to be missing. The gate
+reported the organisation's real homepage as a dead link on a page aimed at
+Massachusetts law students, and the obvious repair would have been to swap in
+`publiccounsel.org`, which is a *different* organisation in Los Angeles.
+
+Hard-dead verdicts are now confirmed with a second, independent request before
+being reported. Calling a link dead is the finding most likely to make someone
+delete a correct link, so it is the one that must never rest on a single
+observation.
+
 ## Checking a Medium link
 
 Medium 403s browser, Googlebot, Facebook and Twitter user agents, and serves

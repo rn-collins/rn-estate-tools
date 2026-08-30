@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set for Life · The LinkedIn Networking System for Law Students</title>
+<meta name="description" content="The documented LinkedIn networking system that produced seven positions, a 26% cold reply rate, and 2,862 professional connections during one law school year. Self-paced course. $197. Lifetime access.">
+<meta name="author" content="RN Collins">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#DF7B58">
+
+<meta property="og:title" content="Set for Life · The LinkedIn Networking System for Law Students">
+<meta property="og:description" content="Seven positions. One 1L year. Zero from job boards. The documented system, on a self-paced course. $197. Lifetime access.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://set-for-life.vercel.app/">
+<meta property="og:image" content="https://set-for-life.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Set for Life · LinkedIn Networking for Law Students">
+<meta name="twitter:description" content="Seven positions. One 1L year. Zero from job boards. $197.">
+<meta name="twitter:image" content="https://set-for-life.vercel.app/og-image.png">
+
+<link rel="canonical" href="https://set-for-life.vercel.app/">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2315110F'/%3E%3Ctext x='50' y='62' font-family='Georgia' font-size='52' fill='%23DF7B58' text-anchor='middle' font-style='italic'%3ES%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@500;600;700&family=Manrope:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --coral: #DF7B58;
+  --coral-dark: #B85F3F;
+  --coral-soft: rgba(223, 123, 88, 0.12);
+  --coral-line: rgba(223, 123, 88, 0.22);
+  --gold: #E5C58A;
+  --bg: #15110F;
+  --bg-elev: #1F1814;
+  --bg-card: #251D17;
+  --bg-deep: #0F0B09;
+  --text: #F2EBE3;
+  --text-dim: #A89884;
+  --text-muted: #7A6B5D;
+  --border: rgba(223, 123, 88, 0.18);
+  --border-soft: rgba(242, 235, 227, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--coral); text-decoration: none; transition: color 0.15s; }
+a:hover { color: var(--gold); }
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+/* ── Typography ── */
+h1, h2, h3, h4 { font-family: 'Cormorant Garamond', serif; font-weight: 400; line-height: 1.2; color: var(--text); }
+h1 { font-size: clamp(2.4rem, 5.5vw, 4.4rem); letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.8rem, 3.6vw, 2.8rem); letter-spacing: -0.01em; }
+h3 { font-size: clamp(1.3rem, 2.4vw, 1.7rem); }
+em { font-style: italic; color: var(--coral); }
+
+.label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coral);
+  display: inline-block;
+  margin-bottom: 0.9rem;
+}
+
+.mono {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+/* ── Layout ── */
+.container { max-width: 920px; margin: 0 auto; padding: 0 2rem; }
+.container-narrow { max-width: 740px; margin: 0 auto; padding: 0 2rem; }
+section { padding: 5.5rem 0; position: relative; }
+.section-alt { background: var(--bg-elev); }
+.section-deep { background: var(--bg-deep); }
+
+/* ── Navigation ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(21, 17, 15, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 1rem 2rem;
+}
+.nav-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  color: var(--text);
+}
+.nav-logo em { color: var(--coral); }
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  align-items: center;
+}
+.nav-links a {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  background: var(--coral);
+  color: var(--bg) !important;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  font-weight: 600 !important;
+}
+.nav-cta:hover { background: var(--gold); color: var(--bg) !important; }
+.nav-mobile-toggle { display: none; }
+
+@media (max-width: 760px) {
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-elev);
+    flex-direction: column;
+    padding: 1.5rem 2rem;
+    gap: 1.2rem;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .nav-mobile-toggle {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    color: var(--text);
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+}
+
+/* ── Hero ── */
+.hero {
+  padding: 7rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, var(--coral-soft) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+.hero-inner { position: relative; z-index: 1; text-align: center; }
+.hero h1 {
+  margin: 0.6rem auto 1.6rem;
+  max-width: 780px;
+}
+.hero-sub {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  max-width: 580px;
+  margin: 0 auto 2.4rem;
+  line-height: 1.7;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  margin: 2.5rem auto 2.8rem;
+  flex-wrap: wrap;
+}
+.hero-stat-item {
+  text-align: center;
+}
+.hero-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.6rem;
+  color: var(--coral);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+.hero-stat-lab {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.hero-ctas {
+  display: flex;
+  gap: 0.9rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-block;
+  padding: 0.95rem 1.8rem;
+  border-radius: 7px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: all 0.18s;
+  text-align: center;
+  cursor: pointer;
+}
+.btn-primary {
+  background: var(--coral);
+  color: var(--bg);
+}
+.btn-primary:hover {
+  background: var(--gold);
+  color: var(--bg);
+  transform: translateY(-1px);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.btn-block { display: block; width: 100%; }
+
+/* ── Proof Bar (testimonial belt) ── */
+.proof-bar {
+  background: var(--bg-deep);
+  padding: 1.8rem 0;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  overflow: hidden;
+}
+.proof-bar-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.4rem 3rem;
+}
+.proof-bar-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.proof-bar-item {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+}
+.proof-bar-item strong {
+  color: var(--gold);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* ── Sections ── */
+.section-head {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+.section-head h2 { margin-bottom: 1rem; }
+.section-head p {
+  color: var(--text-dim);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.75;
+}
+
+/* ── The Problem ── */
+.problem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.6rem;
+  margin-top: 3rem;
+}
+.problem-card {
+  padding: 2rem 1.6rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+}
+.problem-stat {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  color: var(--coral);
+  line-height: 1;
+  margin-bottom: 0.6rem;
+}
+.problem-text {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ── Three Compounds ── */
+.compounds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.4rem;
+  margin-top: 3rem;
+}
+.compound {
+  padding: 2.2rem 1.8rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  position: relative;
+}
+.compound-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--coral);
+  margin-bottom: 1rem;
+  display: block;
+}
+.compound h3 {
+  margin-bottom: 0.7rem;
+}
+.compound p {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+/* ── Modules ── */
+.modules {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 3rem;
+}
+.module {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 1.4rem;
+  padding: 1.6rem 1.8rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.module:hover {
+  border-color: var(--coral-line);
+  transform: translateX(2px);
+}
+.module-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.4rem;
+  color: var(--coral);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.module h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+.module-desc {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* ── AI Generalist ── */
+.ai-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+.ai-project {
+  padding: 1.6rem 1.4rem;
+  background: var(--coral-soft);
+  border: 1px solid var(--coral-line);
+  border-radius: 10px;
+}
+.ai-project-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+.ai-project h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.ai-project p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+/* ── Commandments ── */
+.commandments {
+  display: grid;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+.commandment {
+  padding: 1.4rem 1.8rem;
+  background: var(--bg-card);
+  border-left: 3px solid var(--coral);
+  border-radius: 0 10px 10px 0;
+}
+.commandment-rule {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+.commandment h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+}
+.commandment p {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* ── What's Included ── */
+.included {
+  margin-top: 3rem;
+  display: grid;
+  gap: 0.8rem;
+}
+.included-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.3rem 1.6rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+}
+.included-item.featured {
+  background: var(--coral-soft);
+  border-color: var(--coral-line);
+}
+.included-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+}
+.included-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.included-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* ── Testimonials ── */
+.testimonials {
+  display: grid;
+  gap: 1.4rem;
+  margin-top: 3rem;
+}
+.testimonial {
+  padding: 1.8rem 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  position: relative;
+}
+.testimonial.position-source {
+  border-color: var(--coral-line);
+}
+.testimonial-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+.testimonial-attr {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--coral);
+  letter-spacing: 0.08em;
+}
+.testimonial-badge {
+  position: absolute;
+  top: -1px;
+  right: 1.4rem;
+  background: var(--gold);
+  color: var(--bg);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  padding: 0.22rem 0.6rem;
+  border-radius: 0 0 5px 5px;
+  text-transform: uppercase;
+}
+
+/* ── About ── */
+.about-content {
+  font-size: 1rem;
+  color: var(--text-dim);
+  line-height: 1.85;
+}
+.about-content p {
+  margin-bottom: 1.4rem;
+}
+.about-content strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.about-creds {
+  margin-top: 2rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--border-soft);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.4rem;
+}
+.cred-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  color: var(--coral);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+.cred-lab {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── FAQ ── */
+.faq-list {
+  margin-top: 3rem;
+  display: grid;
+  gap: 1rem;
+}
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.faq-q {
+  padding: 1.4rem 1.8rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: background 0.15s;
+}
+.faq-q:hover { background: var(--coral-soft); }
+.faq-q::after {
+  content: "+";
+  font-family: 'DM Mono', monospace;
+  font-size: 1.4rem;
+  color: var(--coral);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.faq-item.open .faq-q::after { transform: rotate(45deg); }
+.faq-a {
+  padding: 0 1.8rem;
+  max-height: 0;
+  overflow: hidden;
+  color: var(--text-dim);
+  line-height: 1.8;
+  font-size: 0.95rem;
+  transition: max-height 0.25s ease-out, padding 0.25s ease-out;
+}
+.faq-item.open .faq-a {
+  padding: 0 1.8rem 1.6rem;
+  max-height: 480px;
+}
+
+/* ── Pricing ── */
+.pricing-card {
+  background: linear-gradient(180deg, var(--coral-soft) 0%, var(--bg-card) 100%);
+  border: 1px solid var(--coral-line);
+  border-radius: 16px;
+  padding: 3rem 2.4rem;
+  text-align: center;
+  max-width: 540px;
+  margin: 3rem auto 0;
+}
+.pricing-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.pricing-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4.5rem;
+  color: var(--coral);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.pricing-price .currency {
+  font-size: 2.4rem;
+  vertical-align: super;
+  margin-right: 0.1rem;
+}
+.pricing-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 1.8rem;
+}
+.pricing-includes {
+  margin-bottom: 2rem;
+  text-align: left;
+  display: grid;
+  gap: 0.5rem;
+}
+.pricing-includes li {
+  list-style: none;
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  padding-left: 1.4rem;
+  position: relative;
+  line-height: 1.6;
+}
+.pricing-includes li::before {
+  content: "→";
+  color: var(--coral);
+  position: absolute;
+  left: 0;
+  font-family: 'DM Mono', monospace;
+}
+.pricing-note {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 1.4rem;
+}
+
+/* ── Final CTA ── */
+.final-cta {
+  text-align: center;
+  background: var(--bg-deep);
+  padding: 6rem 2rem;
+  border-top: 1px solid var(--border-soft);
+}
+.final-cta h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 1.4rem;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.final-cta p {
+  color: var(--text-dim);
+  max-width: 540px;
+  margin: 0 auto 2.4rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* ── Footer ── */
+footer {
+  background: var(--bg-deep);
+  padding: 3rem 2rem 2rem;
+  border-top: 1px solid var(--border-soft);
+}
+.footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.footer-brand em { color: var(--coral); }
+.footer-tagline {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 360px;
+}
+.footer-links {
+  display: flex;
+  gap: 1.8rem;
+  list-style: none;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+.footer-links a:hover { color: var(--coral); }
+.footer-copy {
+  max-width: 1080px;
+  margin: 2.4rem auto 0;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--border-soft);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 660px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 1.4rem;
+  }
+  .hero-stats { gap: 1.5rem; }
+  .module {
+    grid-template-columns: 60px 1fr;
+    padding: 1.2rem 1.4rem;
+  }
+  .module-num { font-size: 1.1rem; }
+  .included-item {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+  .included-tag { justify-self: start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════
+     NAVIGATION
+     ════════════════════════════════════════════════════════════════ -->
+<nav aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="#top" class="nav-logo">Set for <em>Life</em></a>
+    <button class="nav-mobile-toggle" aria-controls="nav-links" aria-expanded="false" onclick="var e=this.getAttribute('aria-expanded')=='true';this.setAttribute('aria-expanded',!e);document.getElementById('nav-links').classList.toggle('open')">Menu</button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#why">Why It Works</a></li>
+      <li><a href="#system">The System</a></li>
+      <li><a href="#proof">Proof</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#enroll" class="nav-cta">Enroll · $197</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+
+<!-- ════════════════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════════════════ -->
+<section class="hero" id="top">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="label">The 0L / 1L Operating System</div>
+      <h1>Seven positions.<br>One 1L year.<br><em>Zero from job boards.</em></h1>
+      <p class="hero-sub">The documented LinkedIn networking system that produced a 26% cold reply rate from senior practitioners. Self-paced. Lifetime access. Built from the inside.</p>
+      <div class="hero-stats">
+        <div class="hero-stat-item">
+          <div class="hero-stat-num">7</div>
+          <div class="hero-stat-lab">Positions as a 1L</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-num">26%</div>
+          <div class="hero-stat-lab">Cold reply rate</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-num">2,862</div>
+          <div class="hero-stat-lab">Connections built</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-num">0</div>
+          <div class="hero-stat-lab">From job boards</div>
+        </div>
+      </div>
+      <div class="hero-ctas">
+        <a href="#enroll" class="btn btn-primary">Enroll for $197</a>
+        <a href="#system" class="btn btn-ghost">See what is inside</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PROOF BAR
+     ════════════════════════════════════════════════════════════════ -->
+<div class="proof-bar">
+  <div class="proof-bar-inner">
+    <span class="proof-bar-label">Proof of work, not a CV line</span>
+    <span class="proof-bar-item"><strong>938</strong> outreach messages</span>
+    <span class="proof-bar-item"><strong>207</strong> replies</span>
+    <span class="proof-bar-item">On an <strong>iPad</strong></span>
+    <span class="proof-bar-item">In <strong>16 months</strong></span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     THE PROBLEM
+     ════════════════════════════════════════════════════════════════ -->
+<section id="problem">
+  <div class="container">
+    <div class="section-head">
+      <span class="label">The Problem</span>
+      <h2>Most networking advice fails because it is<br><em>a tactic without a discipline.</em></h2>
+      <p>Generic outreach to a generic list produces a generic reply rate. The students who arrive at law school with networks already in place did not work harder. They worked with a system.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-stat">3%</div>
+        <p class="problem-text">Average reply rate for generic cold outreach. The kind every networking book teaches.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-stat">26%</div>
+        <p class="problem-text">Reply rate from the documented system. Same platform. Same target audience. Different architecture.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-stat">60s</div>
+        <p class="problem-text">The decision window. Senior practitioners scan for specificity in under thirty seconds. The next thirty are spent reading or deleting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     WHY IT WORKS (behavioral science)
+     ════════════════════════════════════════════════════════════════ -->
+<section class="section-alt" id="why">
+  <div class="container-narrow">
+    <div class="section-head">
+      <span class="label">Why It Works</span>
+      <h2>The system is built on how senior practitioners<br><em>actually process unsolicited contact.</em></h2>
+    </div>
+    <div class="about-content">
+      <p>Every Aloha Framework element exists for a behavioral reason. The salutation establishes basic competence in the first second. The Time Anchor signals you are aware of their week, not just their job title. The Role Hook proves you have done thirty seconds of research that the next hundred people in their inbox have not.</p>
+      <p>The Credential Cluster gives them three reasons to take you seriously in twenty words. The Offer respects their time by asking for something specific and small. The Close confirms you have done this before.</p>
+      <p>Each part removes a reason to delete. Each part adds a reason to reply. The sequence is non-negotiable because attention is non-negotiable. The first sentence determines whether the second is read at all.</p>
+      <p><strong>This is not a new theory of networking. It is the documented version of what already works. The intelligence is available to everyone. What separates seven positions from one is execution.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     THREE COMPOUNDS
+     ════════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="label">Three Compounds</span>
+      <h2>From message one,<br>the system builds <em>three assets in parallel.</em></h2>
+      <p>Each one strengthens the other. The longer the system runs, the less effort each new relationship requires.</p>
+    </div>
+    <div class="compounds">
+      <div class="compound">
+        <span class="compound-num">Compound 01</span>
+        <h3>The Network</h3>
+        <p>Every connection introduces three to five more, often without being asked. By message one hundred, the network is doing the outreach for you. The platform itself becomes the introduction engine.</p>
+      </div>
+      <div class="compound">
+        <span class="compound-num">Compound 02</span>
+        <h3>The Fluency</h3>
+        <p>By message fifty, your writing is sharper than at message five. You learn what works for you, in your field, with your voice. The system tunes itself to the operator running it.</p>
+      </div>
+      <div class="compound">
+        <span class="compound-num">Compound 03</span>
+        <h3>The Profile</h3>
+        <p>Every interaction signals expertise to the next visitor. The profile stops being a resume and becomes an inbound channel. People in your target field start reaching out to you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     THE SYSTEM (8 modules)
+     ════════════════════════════════════════════════════════════════ -->
+<section class="section-deep" id="system">
+  <div class="container">
+    <div class="section-head">
+      <span class="label">The System</span>
+      <h2>Eight modules.<br><em>The complete operating system.</em></h2>
+      <p>Self-paced. Built to be executed alongside the system, not consumed as content. Every module ends with the exact action it asks you to take.</p>
+    </div>
+    <div class="modules">
+      <div class="module">
+        <div class="module-num">00</div>
+        <div>
+          <h3>The Mindset Shift</h3>
+          <p class="module-desc">Why most students network at exactly the wrong moment. The cost of waiting until 2L summer. The reason the system has to start before the pressure does.</p>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">01</div>
+        <div>
+          <h3>Profile Foundation</h3>
+          <p class="module-desc">The headline that signals legibility in three seconds. The About that reads as an argument rather than a CV. The Featured section that becomes a portfolio. The Bridge Identity that connects your past to your direction.</p>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">02</div>
+        <div>
+          <h3>Target Mapping</h3>
+          <p class="module-desc">How to identify the fifty practitioners worth your first hundred messages. The filter logic. The companies, the seniority tiers, the geographic and practice constraints that produce a reachable map.</p>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">03</div>
+        <div>
+          <h3>Practitioner Research</h3>
+          <p class="module-desc">One minute of real research separates a 3 percent reply rate from a 26 percent one. The five sources to check. The one detail to find. What to do with a target who has no public footprint.</p>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">04</div>
+        <div>
+          <h3>The Aloha Framework</h3>
+          <p class="module-desc">The six-part message architecture behind a 26 percent reply rate. An architecture, not a template. The progression: raw ask, to Aloha Framework structure, to practitioner-specific message. Each stage compounds the specificity of the one before.</p>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">05</div>
+        <div>
+          <h3>Call Conversion</h3>
+          <p class="module-desc">From message to meeting. How to request the call, prepare specifically, ask the question that starts the compounding chain. The thank-you note that keeps the relationship alive after the call ends.</p>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">06</div>
+        <div>
+          <h3>The Standard</h3>
+          <p class="module-desc">The daily operating discipline. Thirty minutes split morning and evening. Most students read three networking books. Set for Life buyers send their first message in 48 hours.</p>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">07</div>
+        <div>
+          <h3>Compounding</h3>
+          <p class="module-desc">The long game. What changes at message fifty, message one hundred, message five hundred. How the profile becomes inbound. How the network becomes self-propagating. What to do when the system starts producing offers you did not ask for.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     AI GENERALIST SKILLS
+     ════════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="label">AI Generalist Skills</span>
+      <h2>You become an AI generalist by<br><em>running the system,</em> not by studying AI.</h2>
+      <p>Every module is executed alongside Claude or ChatGPT. By Module 8 you have done practitioner research with AI, audited a profile with AI, drafted messages with AI, and analyzed your own outreach data with AI. The fluency is a side effect of the practice.</p>
+    </div>
+    <div class="ai-projects">
+      <div class="ai-project">
+        <span class="ai-project-tag">Claude Project · Included</span>
+        <h3>Profile Audit</h3>
+        <p>Drop your LinkedIn text in. Get a practitioner-perspective audit and three rewrite candidates calibrated to your target audience.</p>
+      </div>
+      <div class="ai-project">
+        <span class="ai-project-tag">Claude Project · Included</span>
+        <h3>Practitioner Research</h3>
+        <p>Paste a target profile and a piece of their work. Get three Role Hook candidates ranked by specificity, each anchored to a line of source material.</p>
+      </div>
+      <div class="ai-project">
+        <span class="ai-project-tag">Claude Project · Included</span>
+        <h3>Message Drafter</h3>
+        <p>Six-part Aloha Framework messages from your inputs. Three variants per send, each under the character limit, each with all six structural parts.</p>
+      </div>
+      <div class="ai-project">
+        <span class="ai-project-tag">Claude Project · Included</span>
+        <h3>Follow-up Generator</h3>
+        <p>Acceptance came in. Paste the thread. Get a 24-hour follow-up calibrated to that practitioner voice and the original Role Hook.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SIX COMMANDMENTS
+     ════════════════════════════════════════════════════════════════ -->
+<section class="section-alt">
+  <div class="container-narrow">
+    <div class="section-head">
+      <span class="label">The Operating Rules</span>
+      <h2>Six rules that hold<br><em>the system together.</em></h2>
+      <p>Most networking advice fails because it is a tactic without a discipline. These six rules are the discipline. Break any one of them and the compounding stops.</p>
+    </div>
+    <div class="commandments">
+      <div class="commandment">
+        <span class="commandment-rule">Rule 01</span>
+        <h3>Start with a plan.</h3>
+        <p>Define your targets before you write a single message. Generic outreach to a generic list produces generic results.</p>
+      </div>
+      <div class="commandment">
+        <span class="commandment-rule">Rule 02</span>
+        <h3>Be specific or do not send.</h3>
+        <p>One minute of real research separates a 3 percent reply rate from a 26 percent reply rate. Generic outreach is dead outreach.</p>
+      </div>
+      <div class="commandment">
+        <span class="commandment-rule">Rule 03</span>
+        <h3>Send and review in small batches.</h3>
+        <p>Five messages, then review. The pattern of what works for you specifically only shows up after you have data on yourself.</p>
+      </div>
+      <div class="commandment">
+        <span class="commandment-rule">Rule 04</span>
+        <h3>Save what works.</h3>
+        <p>Every reply is a template seed. The strongest messages from week one become the foundation for week ten.</p>
+      </div>
+      <div class="commandment">
+        <span class="commandment-rule">Rule 05</span>
+        <h3>When a thread dies, move on.</h3>
+        <p>The next ten messages matter more than the last one. The system is a pipeline, not a relationship-by-relationship grind.</p>
+      </div>
+      <div class="commandment">
+        <span class="commandment-rule">Rule 06</span>
+        <h3>Use the platform's actual rules.</h3>
+        <p>LinkedIn has a search, a filter, a feed, and a connection request limit. Each one is a feature. The system runs inside the rules, not around them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     WHAT'S INCLUDED
+     ════════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="container-narrow">
+    <div class="section-head">
+      <span class="label">What is Included</span>
+      <h2>Everything that ships<br>when you enroll.</h2>
+      <p>One payment. Lifetime access. Every asset built to be used while running the system, not stored on a shelf.</p>
+    </div>
+    <div class="included">
+      <div class="included-item featured">
+        <div>
+          <div class="included-name">The Set for Life Course</div>
+          <div class="included-desc">Eight self-paced modules. The complete operating system from mindset through compounding.</div>
+        </div>
+        <div class="included-tag">Core</div>
+      </div>
+      <div class="included-item">
+        <div>
+          <div class="included-name">The Aloha Framework Guide</div>
+          <div class="included-desc">Standalone reference. Six-part architecture plus ten annotated example messages. Screen and PDF formats.</div>
+        </div>
+        <div class="included-tag">Included</div>
+      </div>
+      <div class="included-item">
+        <div>
+          <div class="included-name">The 90-Day Calendar</div>
+          <div class="included-desc">Pre-1L and Professional editions. Interactive, progress saved, designed for daily execution.</div>
+        </div>
+        <div class="included-tag">Included</div>
+      </div>
+      <div class="included-item">
+        <div>
+          <div class="included-name">Four Pre-built Claude Projects</div>
+          <div class="included-desc">Profile Audit, Practitioner Research, Message Drafter, Follow-up Generator. Drop your context in. Run the system inside Claude or ChatGPT.</div>
+        </div>
+        <div class="included-tag">Included</div>
+      </div>
+      <div class="included-item">
+        <div>
+          <div class="included-name">Lifetime Updates</div>
+          <div class="included-desc">Every new module, every new Claude Project, every framework refinement. Delivered to your email on release.</div>
+        </div>
+        <div class="included-tag">Included</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PROOF / TESTIMONIALS
+     ════════════════════════════════════════════════════════════════ -->
+<section class="section-deep" id="proof">
+  <div class="container-narrow">
+    <div class="section-head">
+      <span class="label">What They Said</span>
+      <h2>Verbatim replies<br>from cold outreach.</h2>
+      <p>Every message below was sent to someone who had never heard of me. The system produced the response. The marker indicates which conversations turned into positions.</p>
+    </div>
+    <div class="testimonials">
+      <div class="testimonial">
+        <p class="testimonial-quote">Your background and your resume are fascinating and impressive. I found myself saying wow as I read each bullet.</p>
+        <div class="testimonial-attr">CHIEF LEGAL OFFICER · ENERGY INDUSTRY · SEPTEMBER 2025</div>
+      </div>
+      <div class="testimonial">
+        <p class="testimonial-quote">Thank you for sending one of the more interesting resumes I have ever seen.</p>
+        <div class="testimonial-attr">LEGAL RECRUITER · LAW SCHOOL PLACEMENT · JULY 2025</div>
+      </div>
+      <div class="testimonial position-source">
+        <div class="testimonial-badge">Became a position</div>
+        <p class="testimonial-quote">You have had a very interesting journey so far, and I could potentially use your help in various ways. Not only do I have many research and writing tasks, but I am also interested in your past role in regulatory compliance. If you are open to it, let us have a call to discuss possible opportunities.</p>
+        <div class="testimonial-attr">ATTORNEY · DEA & APPELLATE REGULATORY LITIGATION · AUGUST 2025</div>
+      </div>
+      <div class="testimonial position-source">
+        <div class="testimonial-badge">Became a position</div>
+        <p class="testimonial-quote">We have been looking for someone with exactly your profile. Your work at the intersection of regulatory and emerging therapeutics is rare. Would you have time for a conversation this week?</p>
+        <div class="testimonial-attr">FOUNDING PARTNER · ANTITHESIS LAW · OCTOBER 2025</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     ABOUT
+     ════════════════════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="container-narrow">
+    <div class="section-head">
+      <span class="label">Who Built This</span>
+      <h2>Built from the inside,<br><em>during a 1L year.</em></h2>
+    </div>
+    <div class="about-content">
+      <p>I am <strong>RN Collins</strong>. JD Candidate at Northeastern Law, FlexJD Class of 2029. Before law school, I trained as a neuroscientist (MS in Anatomy and Neurobiology, Boston University School of Medicine) and spent three years in Shanghai building an early-education program in English for young children. The neuroscience training is foundational to every framework in the system, not a credential at the bottom of the page.</p>
+      <p>The 26 percent reply rate is not a volume outcome. It is a design outcome. Each message was built around how senior practitioners actually read unsolicited contact: they scan for specificity in under thirty seconds, weigh the ask for reciprocity, and decide whether to respond before they have finished reading. Every part of the Aloha Framework targets a step in that process.</p>
+      <p>I built 2,862 professional connections in sixteen months, from Honolulu, Hawaii, while completing a full law school year, across time zones. From 938 outreach messages came 207 replies. From those replies came seven positions, zero of which came from a job board.</p>
+      <p>This is what the system produced when I ran it. Set for Life is the documented version, in eight modules, with the tooling and discipline that made it repeatable.</p>
+      <div class="about-creds">
+        <div>
+          <div class="cred-num">7</div>
+          <div class="cred-lab">Positions as a 1L</div>
+        </div>
+        <div>
+          <div class="cred-num">26%</div>
+          <div class="cred-lab">Cold reply rate</div>
+        </div>
+        <div>
+          <div class="cred-num">0</div>
+          <div class="cred-lab">From job boards</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     FAQ
+     ════════════════════════════════════════════════════════════════ -->
+<section class="section-alt" id="faq">
+  <div class="container-narrow">
+    <div class="section-head">
+      <span class="label">Questions</span>
+      <h2>What people<br><em>actually ask.</em></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">Does this work if I am at a lower-ranked law school?</button>
+        <div class="faq-a">The system does not care about your school ranking. It cares about your message. The 26 percent cold reply rate was generated without a T14 name. Partners and General Counsels replied because the hook was specific to them, not dependent on prestige. The Credential Cluster works whether your school is Yale or Northeastern or a program outside the top fifty. What you bring is what you have. This system teaches you how to make it legible.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">I have no connections and no experience. Where do I start?</button>
+        <div class="faq-a">Module 1. You build the Bridge Identity first: the one sentence that describes the intersection of your background and your direction. Everyone has one. Everyone has three true things to put in their Credential Cluster. The system is designed to start from zero because that is where it was built.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">How much time does this actually take?</button>
+        <div class="faq-a">Thirty minutes a day. Morning and evening, fifteen minutes each. The modules front-load the thinking. The daily practice is simple: check who accepted, send messages, respond to replies. The system is designed for a law student schedule because it was built on one.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">Will this work the first time?</button>
+        <div class="faq-a">No. The first message teaches you what message two should be. By message ten you are writing differently than at message one. By message fifty the system has tuned itself to your voice, your field, and your target audience. This is an iterative system. The 26 percent reply rate is the average across hundreds of messages, not the rate of the first one.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">Is this just LinkedIn advice?</button>
+        <div class="faq-a">LinkedIn is the channel, not the system. The frameworks (message architecture, target mapping, call conversion, operating discipline) transfer to email, Slack DMs, conference outreach, and any other professional contact medium. LinkedIn is where the system was tested at scale because the platform makes the data trackable. The principles apply anywhere senior practitioners receive unsolicited contact.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">What if I am a 2L, 3L, or already in practice?</button>
+        <div class="faq-a">The system works at any stage. The 0L and 1L positioning is where the urgency is highest, but the architecture (research, message structure, call conversion, compounding) does not change with your year. A 3L pivoting practice areas runs the same system with different targets. A junior associate looking for a lateral move runs the same system with different language in the Role Hook.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">What is the refund policy?</button>
+        <div class="faq-a">Fourteen days, no questions asked. If you run the system for two weeks and it does not produce results, email collins.ra@northeastern.edu and I will refund the full $197. The system is designed to work in fourteen days at the latest. If it does not, that is on the system, not on you.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" onclick="var i=this.parentElement;var o=i.classList.toggle('open');this.setAttribute('aria-expanded',i.classList.contains('open'));">When does the course launch?</button>
+        <div class="faq-a">Founding cohort access opens Q3 2026. Enrollment now reserves your spot at $197 (the price will rise after launch). Lifetime access plus every future update is locked at the price you pay today. Email collins.ra@northeastern.edu with questions.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PRICING / ENROLL
+     ════════════════════════════════════════════════════════════════ -->
+<section id="enroll">
+  <div class="container">
+    <div class="section-head">
+      <span class="label">Enroll</span>
+      <h2>The next ninety days<br><em>will pass either way.</em></h2>
+      <p>One payment. Lifetime access. Everything in the system.</p>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-eyebrow">Founding Access · Lifetime</div>
+      <div class="pricing-price"><span class="currency">$</span>197</div>
+      <div class="pricing-sub">One-time payment</div>
+      <ul class="pricing-includes">
+        <li>Eight-module self-paced course</li>
+        <li>The Aloha Framework Guide (PDF and screen)</li>
+        <li>Both 90-Day Calendars (Pre-1L and Professional)</li>
+        <li>Four pre-built Claude Projects</li>
+        <li>Lifetime updates on every new release</li>
+        <li>Fourteen-day no-questions refund</li>
+      </ul>
+      <a href="mailto:collins.ra@northeastern.edu?subject=Set+for+Life+Enrollment" class="btn btn-primary btn-block" data-cta="enroll-primary" aria-label="Enroll in Set for Life for $197">Enroll for $197</a>
+      <div class="pricing-note">Secure checkout via Gumroad · Email delivery on purchase</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     FINAL CTA
+     ════════════════════════════════════════════════════════════════ -->
+<section class="final-cta">
+  <div class="container-narrow">
+    <h2>Most people read three networking books.<br><em>Set for Life buyers send their first message in 48 hours.</em></h2>
+    <p>The window does not stay open forever. The students who arrive at 1L summer with positions in hand did not start in 1L summer. They started before law school began. You can too. The system is the same.</p>
+    <div class="hero-ctas">
+      <a href="#enroll" class="btn btn-primary">Enroll for $197</a>
+      <a href="mailto:collins.ra@northeastern.edu?subject=Set+for+Life+question" class="btn btn-ghost">Ask a question</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════════════════ -->
+</main>
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Set for <em>Life</em></div>
+      <p class="footer-tagline">The documented LinkedIn networking system for law students. Built during a 1L year. Refined for everyone who comes next.</p>
+    </div>
+    <ul class="footer-links">
+      <li><a href="#why">Why It Works</a></li>
+      <li><a href="#system">The System</a></li>
+      <li><a href="#proof">Proof</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#enroll">Enroll</a></li>
+      <li><a href="mailto:collins.ra@northeastern.edu">Contact</a></li>
+      <li><a href="https://www.linkedin.com/in/rn-collins" target="_blank" rel="noopener noreferrer" aria-label="RN Collins on LinkedIn (opens in new tab)">LinkedIn</a></li>
+    </ul>
+  </div>
+  <div class="footer-copy">
+    &copy; 2026 RN Collins · Honolulu, Hawai&#x02BB;i · collins.ra@northeastern.edu
+  </div>
+<div style="max-width:1080px;margin:1.6rem auto 0;padding:1.2rem 2rem;border-top:1px solid rgba(242,235,227,0.08);font-family:DM Mono,monospace;font-size:0.68rem;color:#7A6B5D;line-height:1.7;letter-spacing:0.04em;">DISCLAIMER: Set for Life is an educational course. Nothing on this site constitutes legal advice, career advice, or a guarantee of employment outcomes. Results described reflect the personal experience of the course author and are not typical. Individual results will vary.</div></footer>
+
+<script>
+// Smooth scroll handled by CSS scroll-behavior. Just close mobile nav on link click.
+document.querySelectorAll('.nav-links a').forEach(function(link) {
+  link.addEventListener('click', function() {
+    document.getElementById('nav-links').classList.remove('open');
+    var t = document.querySelector('.nav-mobile-toggle');
+    if (t) t.setAttribute('aria-expanded', 'false');
+  });
+});
+
+// Auto-open first FAQ on load (nudges interaction)
+document.addEventListener('DOMContentLoaded', function() {
+  // Nothing forced. FAQ items toggle on click.
+});
+
+// Track CTA clicks (no analytics endpoint by default; replace with your GA4 or Plausible call)
+document.querySelectorAll('[data-cta]').forEach(function(el) {
+  el.addEventListener('click', function() {
+    if (window.gtag) {
+      window.gtag('event', 'cta_click', { cta_id: el.getAttribute('data-cta') });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

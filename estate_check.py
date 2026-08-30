@@ -285,8 +285,22 @@ def check_page(base, url, deep=True):
             with ThreadPoolExecutor(max_workers=6) as ex_:
                 codes = list(ex_.map(status_only, urls))
             bad = [(u, c) for u, c in zip(urls, codes) if c not in (200, 301, 302, 303, 307, 308)]
-            hard = [(u, c) for u, c in bad if c in (404, 410)]
-            soft = [(u, c) for u, c in bad if c not in (404, 410)]
+            # Confirm every hard-dead verdict with a second, independent request.
+            # A WAF can answer 404 once and 403 the next second: publiccounsel.net
+            # did exactly that, and the gate reported the Massachusetts public
+            # defender's real homepage as a dead link. Calling something dead is
+            # the finding most likely to make someone delete a correct link, so
+            # it is the one that must never rest on a single observation.
+            hard = []
+            for u, c in bad:
+                if c not in (404, 410):
+                    continue
+                time.sleep(0.4)
+                if status_only(u) in (404, 410):
+                    hard.append((u, c))
+            confirmed_dead = {u for u, _ in hard}
+            bad = [(u, c) for u, c in bad if u not in confirmed_dead or c in (404, 410)]
+            soft = [(u, c) for u, c in bad if u not in confirmed_dead]
             if hard:
                 sev = "blocker" if label == "internal" else "major"
                 f.append((sev, f"{len(hard)} dead {label} link(s): " + "; ".join(f"{c} {u}" for u, c in hard[:5])))
