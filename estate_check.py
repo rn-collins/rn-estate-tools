@@ -42,6 +42,15 @@ TIMEOUT = 25
 MIN_WORDS = 400          # below this a page is a stub, not a product
 MAX_HEDGE_PCT = 30       # above this it reads as an internal audit memo
 
+# Legal and policy pages are supposed to be full of qualifications — that is the
+# genre working correctly, not an audit memo. Applying the prose ceiling to them
+# pushes toward deleting caveats from a privacy policy or a terms page, which is
+# the opposite of the point. They are exempt from the hedge ceiling and from the
+# word floor; a short, plain privacy page is a good privacy page.
+POLICY_ROUTE = re.compile(
+    r"/(privacy|terms|legal|licen[cs]e|disclaimer|cookies?|accessibility|"
+    r"institutional-disclaimer|dmca|imprint)(\.html)?/?$", re.I)
+
 HEDGE = re.compile(
     r"\b(not (?:a|an|intended|vetting|endorsement|legal advice|medical advice|validated|approved)"
     r"|does not|do not|cannot|unvalidated|no warranty|disclaimer|caveat"
@@ -221,9 +230,10 @@ def check_page(base, url, deep=True):
     sents = [s for s in re.split(r"(?<=[.!?])\s+", ex.visible) if len(s.split()) > 3]
     hedged = [s for s in sents if HEDGE.search(s)]
     pct = round(100 * len(hedged) / len(sents)) if sents else 0
-    if len(words) < MIN_WORDS:
+    policy = bool(POLICY_ROUTE.search(urlparse(final).path or "/"))
+    if len(words) < MIN_WORDS and not policy:
         f.append(("major", f"stub: {len(words)} visible words (floor {MIN_WORDS})"))
-    if pct > MAX_HEDGE_PCT:
+    if pct > MAX_HEDGE_PCT and not policy:
         f.append(("major", f"reads as an audit memo: {pct}% of sentences are caveats (ceiling {MAX_HEDGE_PCT}%)"))
 
     # ---- ACCESS ----------------------------------------------------------
