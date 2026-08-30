@@ -87,7 +87,10 @@ def fetch(url, method="GET", _retry=True):
 
 def status_only(url):
     st, _, _, _ = fetch(url, "HEAD")
-    if st in (0, 403, 405, 501):        # some hosts refuse HEAD; retry properly
+    # Some hosts answer HEAD with 404 for a document that GET serves at 200 —
+    # nvlpubs.nist.gov does exactly this for the AI RMF PDFs. A 404 therefore
+    # cannot be treated as definitive either, or the gate invents dead links.
+    if st in (0, 403, 404, 405, 501):
         st, _, _, _ = fetch(url, "GET")
     return st
 
@@ -103,6 +106,7 @@ class Extract(HTMLParser):
         self.title, self.lang = "", ""
         self._in_title = False
         self._skip = 0
+        self._in_label = 0
         self.text = []
 
     def handle_starttag(self, tag, attrs):
@@ -122,9 +126,14 @@ class Extract(HTMLParser):
         elif tag == "img":
             self.imgs.append(a)
         elif tag in ("input", "select", "textarea"):
-            self.inputs.append(a)
+            # A control nested inside <label> is labelled implicitly. That is
+            # valid HTML and correctly exposed to assistive tech; checking only
+            # for/aria-label reported 111 correctly-labelled controls on one
+            # build as unlabelled.
+            self.inputs.append({**a, "_implicit_label": self._in_label > 0})
         elif tag == "label":
             self.labels.append(a)
+            self._in_label += 1
         elif tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
             self.headings.append(int(tag[1]))
         elif tag == "meta":
@@ -137,6 +146,8 @@ class Extract(HTMLParser):
                 self.linkrel[rel] = a.get("href", "")
 
     def handle_endtag(self, tag):
+        if tag == "label" and self._in_label:
+            self._in_label -= 1
         if tag == "title":
             self._in_title = False
         elif tag in ("script", "style") and self._skip:
@@ -233,6 +244,7 @@ def check_page(base, url, deep=True):
         i for i in ex.inputs
         if i.get("type") not in ("hidden", "submit", "button", "image", "reset")
         and not i.get("aria-label") and not i.get("aria-labelledby")
+        and not i.get("_implicit_label")
         and not (i.get("id") and i["id"] in labelled)
     ]
     if unlabelled:

@@ -156,7 +156,7 @@ was caught.
 
 ---
 
-## Nine false-positive classes, and why they are documented
+## Ten false-positive classes, and why they are documented
 
 Each was caught the same way — by a second method disagreeing with this tool,
 never by the tool noticing itself:
@@ -168,6 +168,11 @@ never by the tool noticing itself:
 4. URL regex ran past commas, so CSV column bleed produced guaranteed 404s.
 5. XML namespace URIs and archived third-party mirrors scanned as sources.
 6. HEAD returned 404 where GET returns 200, inflating dead counts everywhere.
+   Extended 2026-08-30: `estate_check` retried HEAD failures on GET for
+   403/405/501 but took 404 as definitive. `nvlpubs.nist.gov` answers HEAD
+   with 404 for PDFs it serves at 200 — so the gate reported the NIST AI RMF
+   as a dead authority on three routes of the flagship. A 404 from HEAD is
+   now re-verified with GET before anything is called dead.
 7. Template literals and test fixtures treated as live URLs.
 8. Title matching itself — demoted to advisory, because near-citation text is
    usually a quotation.
@@ -175,6 +180,12 @@ never by the tool noticing itself:
    (`TLSV1_ALERT_PROTOCOL_VERSION`) that serve curl and browsers a clean 200.
    Seven turned up in one scan. `_get` now falls back to curl on any TLS
    error, because a citation must never be called dead over our own handshake.
+10. **Implicit `<label>` wrapping.** `estate_check` looked only for `for=`,
+    `aria-label` and `aria-labelledby`, so a control written as
+    `<label>Name <input></label>` read as unlabelled. That is valid HTML and
+    is correctly exposed to assistive tech. It reported 111 unlabelled
+    controls on one build; hand-counting found 32 inputs, 31 of them wrapped.
+    The parser now tracks label nesting depth.
 
 The pattern worth keeping: a checker is only trustworthy where a second,
 unrelated method agrees with it. Where two methods converge the finding is
