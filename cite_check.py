@@ -73,7 +73,7 @@ BOT_BLOCKERS = {
     "sciencedirect.com", "americanbar.org", "businesswire.com",
     "simonandschuster.com", "erowid.org", "reuters.com", "nytimes.com",
     "wsj.com", "ft.com", "time.com", "sec.gov", "dol.gov", "nycourts.gov",
-    "dea.gov", "mass.gov", "hhs.gov", "rainn.org", "meta.com", "linkedin.com",
+    "dea.gov", "hhs.gov", "rainn.org", "meta.com", "linkedin.com",
     "springer.com", "link.springer.com", "wiley.com", "onlinelibrary.wiley.com",
     "tandfonline.com", "jamanetwork.com", "nejm.org", "bmj.com",
 }
@@ -218,6 +218,14 @@ def check_url(url):
     # working page is reported as a dead citation.
     if st in (0, 403, 404, 405, 401, 406, 501, 999):
         st, _ = _get(url, ua=BROWSER_UA)
+    # Some hosts refuse the browser UA and serve a plain one. mass.gov is the
+    # clear case: BROWSER_UA gets 403, the neutral UA gets a true 200 or 404.
+    # Without this retry every mass.gov citation reads "unverifiable", which is
+    # how three dead mass.gov links shipped as "0 dead links".
+    if st in (0, 403, 401, 406, 429, 999):
+        st2, _ = _get(url, ua=UA)
+        if st2 in (200, 301, 302, 303, 307, 308, 404, 410):
+            st = st2
     blocked = any(host == b or host.endswith("." + b) for b in BOT_BLOCKERS)
     if st in (200, 301, 302, 303, 307, 308):
         return dict(kind="url", id=url, ok=True, severity="ok", status=st,

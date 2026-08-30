@@ -192,6 +192,41 @@ unrelated method agrees with it. Where two methods converge the finding is
 real; where they differ by an order of magnitude, suspect the instrument
 first.
 
+## Two false negatives, which are worse
+
+A false positive wastes an hour. A false negative ships. Both of these let a
+build pass while it was pointing users at dead pages.
+
+1. **The silent cap.** `estate_check` truncated link checking with
+   `sorted(urls)[:120]` per page and reported nothing. flexjd's opportunity
+   tracker has 411 links; 291 were never checked, three of those were 404, and
+   the run reported "0 dead external links". The cap is now 600 and exceeding
+   it is a **major finding that names how many were skipped**. A bounded check
+   that reads as a clean result is worse than no check at all.
+
+2. **The suppression list as a blindfold.** `cite_check` probes with
+   `BROWSER_UA` and treats a 403 as "bot mitigation — likely fine in a
+   browser". `mass.gov` answers a browser UA with 403 and the neutral
+   `cite-check` UA with a true 200 or 404 — the inverse of the usual pattern.
+   So every mass.gov citation, live or dead, read as unverifiable, and three
+   dead ones shipped. Now any bot-mitigation status is retried with the
+   neutral UA, and a definitive answer from either UA wins. `mass.gov` came
+   off `BOT_BLOCKERS`, because that list suppresses findings and belongs only
+   to hosts that genuinely refuse every probe.
+
+Both were found the same way as the false positives: by hand-checking a
+result the tool called clean.
+
+## Checking a Medium link
+
+Medium 403s browser, Googlebot, Facebook and Twitter user agents, and serves
+`Slackbot-LinkExpanding 1.0`. Read `isAccessibleForFree` and `isLocked` from
+the returned page — those are authoritative. Do **not** grep for
+"Member-only story": a confirmed-free post carries four of them, because the
+badge is rendered on the recommendation rail, not on the article. Verified
+against a known-free control (Wayback: `isAccessibleForFree=true`) and a
+known-paywalled one (`isLocked=true`).
+
 ## Adding a bot-blocked host
 
 If a host is reported dead but loads in a browser, add it to `BOT_BLOCKERS` in
