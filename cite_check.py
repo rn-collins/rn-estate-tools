@@ -76,6 +76,9 @@ BOT_BLOCKERS = {
     "dea.gov", "hhs.gov", "rainn.org", "meta.com", "linkedin.com",
     "springer.com", "link.springer.com", "wiley.com", "onlinelibrary.wiley.com",
     "tandfonline.com", "jamanetwork.com", "nejm.org", "bmj.com",
+    # Cloudflare, and it 403s a deliberately nonexistent control path too —
+    # so nothing on this host can be told apart from a dead page by machine.
+    "law.ucdavis.edu",
 }
 
 
