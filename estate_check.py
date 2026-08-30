@@ -269,10 +269,19 @@ def check_page(base, url, deep=True):
         (internal if urlparse(u).netloc == urlparse(base).netloc else external).add(u)
 
     if deep:
-        for label, urls, cap in (("internal", internal, 120), ("external", external, 120)):
+        # The cap exists so one link-farm page cannot stall a whole run. It must
+        # never be silent: truncating alphabetically and reporting "0 dead
+        # links" is how a page with 411 links passed while three of them 404'd.
+        for label, urls, cap in (("internal", internal, 600), ("external", external, 600)):
+            total = len(urls)
             urls = sorted(urls)[:cap]
             if not urls:
                 continue
+            if total > cap:
+                f.append(("major",
+                          f"{total} {label} links exceed the {cap} checked here — "
+                          f"{total - cap} were NOT verified. This page's link "
+                          f"count is not a clean result."))
             with ThreadPoolExecutor(max_workers=6) as ex_:
                 codes = list(ex_.map(status_only, urls))
             bad = [(u, c) for u, c in zip(urls, codes) if c not in (200, 301, 302, 303, 307, 308)]
