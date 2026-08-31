@@ -217,6 +217,18 @@ build pass while it was pointing users at dead pages.
 Both were found the same way as the false positives: by hand-checking a
 result the tool called clean.
 
+## The third silent cap, in route discovery
+
+`discover()` returned `sorted(seen)[:40]` and said nothing. rn-portfolio has
+572 built pages; the gate graded 40 of them, alphabetically, and printed PASS —
+a verdict on 7% of a site, presented as a verdict on the site.
+
+Raised to 200, and exceeding it is now a **major finding that names how many
+routes were not graded**. That is the same fix as the link cap, for the same
+reason, and it is the third time this instrument has reported clean on work it
+had not looked at. The lesson is not about caps. It is that any bound on
+coverage must appear in the output, or the output is a lie by omission.
+
 ## And one more false positive, from a WAF that changes its mind
 
 `publiccounsel.net` — the Massachusetts Committee for Public Counsel Services,

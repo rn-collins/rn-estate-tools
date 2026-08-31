@@ -324,8 +324,12 @@ def check_page(base, url, deep=True):
     }
 
 
-def discover(base, limit=40):
-    """Homepage links + sitemap.xml, same-origin only."""
+def discover(base, limit=200):
+    """Homepage links + sitemap.xml, same-origin only.
+
+    Returns (urls, total_found). The cap must never be silent: sampling 40
+    routes alphabetically out of 572 and printing PASS is how a site can be
+    called clean on 7% of itself."""
     seen = {base.rstrip("/") or base}
     st, html, final, _ = fetch(base)
     if st == 200:
@@ -346,13 +350,26 @@ def discover(base, limit=40):
         for m in re.findall(r"<loc>\s*([^<]+?)\s*</loc>", xml):
             if urlparse(m).netloc == urlparse(base).netloc:
                 seen.add(m.split("#")[0].rstrip("/"))
-    return sorted(seen)[:limit]
+    allu = sorted(seen)
+    return allu[:limit], len(allu)
 
 
 def run(base, deep=True, routes=None):
     t0 = time.time()
-    urls = routes or discover(base)
+    if routes:
+        urls, found = routes, len(routes)
+    else:
+        urls, found = discover(base)
     pages = [check_page(base, u, deep=deep) for u in urls]
+    if found > len(urls):
+        pages.append({
+            "url": base, "status": 200, "fatal": False, "skipped": False,
+            "findings": [("major",
+                          f"{found} same-origin routes discovered but only {len(urls)} "
+                          f"checked — {found - len(urls)} were NOT graded. This site's "
+                          f"result does not describe the whole site.")],
+            "words": 0, "hedge_pct": 0, "links": 0, "internal": 0, "external": 0,
+        })
     graded = [p for p in pages if not p.get("skipped")]
     counts = Counter()
     for p in graded:
