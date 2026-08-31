@@ -36,6 +36,11 @@ import urllib.request
 import urllib.error
 
 UA = "Mozilla/5.0 (compatible; estate-check/1.0; +https://github.com/rn-collins)"
+# Some hosts refuse a non-browser client and say 404 rather than 403 — accessdata
+# .fda.gov does it even for its own root. A 404 from one client is therefore not
+# proof of anything, and acting on it would delete a working citation.
+BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36")
 TIMEOUT = 25
 
 # Thresholds. Raise deliberately; never lower to make a build pass.
@@ -73,9 +78,9 @@ class _Redirect308(urllib.request.HTTPRedirectHandler):
 _OPENER = urllib.request.build_opener(_Redirect308)
 
 
-def fetch(url, method="GET", _retry=True):
+def fetch(url, method="GET", _retry=True, ua=UA):
     """Return (status, body_text, final_url, content_type). status 0 = transport failure."""
-    req = urllib.request.Request(url, headers={"User-Agent": UA}, method=method)
+    req = urllib.request.Request(url, headers={"User-Agent": ua}, method=method)
     try:
         with _OPENER.open(req, timeout=TIMEOUT) as r:
             body = b""
@@ -90,7 +95,7 @@ def fetch(url, method="GET", _retry=True):
         # timeout under concurrency, and a single miss must not read as "dead".
         if _retry:
             time.sleep(1.5)
-            return fetch(url, method, _retry=False)
+            return fetch(url, method, _retry=False, ua=ua)
         return 0, "", url, ""
 
 
@@ -306,8 +311,13 @@ def check_page(base, url, deep=True):
                 if c not in (404, 410):
                     continue
                 time.sleep(0.4)
-                if status_only(u) in (404, 410):
-                    hard.append((u, c))
+                if status_only(u) not in (404, 410):
+                    continue
+                # Second opinion from a browser UA before anything is called dead.
+                st2, _, _, _ = fetch(u, "GET", ua=BROWSER_UA)
+                if st2 in (200, 301, 302, 303, 307, 308):
+                    continue
+                hard.append((u, c))
             confirmed_dead = {u for u, _ in hard}
             bad = [(u, c) for u, c in bad if u not in confirmed_dead or c in (404, 410)]
             soft = [(u, c) for u, c in bad if u not in confirmed_dead]
