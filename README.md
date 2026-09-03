@@ -231,6 +231,34 @@ example.com/org/net/edu and the .example/.invalid/.test/.localhost suffixes are
 now skipped rather than graded. Reserved domains are supposed not to resolve;
 that is the whole point of them.
 
+## A file can return 200 and still be garbage
+
+Three times in one estate a build served a file that was binary and passed
+every check there was:
+
+  package-lock.json   binary, so `npm ci` could never parse it and the
+                      certification workflow had never once passed — three
+                      recorded runs, three failures, each dying in 11 seconds
+  y/index.html        an HTML document wrapped inside a JSON envelope as
+                      base64, which no browser would ever render
+  aiapc-site index.css  54% non-printable bytes, truncating inside a
+                      `.hamburger` rule. Chrome parsed twelve rules and
+                      discarded the rest, so the live site had no hero, no
+                      grid, no cards, no container width and no focus styles
+                      for a fortnight
+
+Every one returned 200. The routes returned 200. The design survey read the
+typefaces out of the readable prefix and reported the site as styled. The
+corruption was only visible by looking at the bytes, or by asking the browser
+how many rules it had actually parsed.
+
+The gate now fetches each same-origin stylesheet and script and fails a build
+whose asset is more than 15% non-printable, or whose stylesheet has unclosed
+rules. Verified against the real corrupted file: 54% non-printable, 2 unclosed
+rules, blocker fires; against the rebuilt one, 1.6%, 0 unclosed, silent.
+
+All three arrived the same way — a tool wrote a file and nobody read it back.
+
 ## A timeout is not a defect
 
 Running several sweeps at once against one host produced five "route returns

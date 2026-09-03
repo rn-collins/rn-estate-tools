@@ -84,6 +84,18 @@ def signature(url):
     for m in re.finditer(r"@font-face\s*{[^}]*?font-family\s*:\s*([^;}]+)", css, re.S):
         if (f := _norm(m.group(1))):
             fams.add(f)
+
+    # font-family: var(--serif) hides the real name in the custom property.
+    # Three builds reported no typeface at all while rendering Iowan Old Style,
+    # because every font-family on them is a var() the parser discarded. Resolve
+    # only the variables that a font-family actually uses, so an unrelated
+    # custom property cannot be mistaken for a typeface.
+    used = set(re.findall(r"font-family\s*:\s*var\(\s*(--[\w-]+)", css))
+    for var in used:
+        for m in re.finditer(re.escape(var) + r"\s*:\s*([^;}]+)", css):
+            if (f := _norm(m.group(1))):
+                fams.add(f)
+                break
     google = set()
     for m in re.finditer(r'fonts\.googleapis\.com/css2?\?family=([^&"\'>]+)', html + css):
         google.update(x.split(":")[0].replace("+", " ").lower()

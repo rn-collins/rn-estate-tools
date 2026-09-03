@@ -185,6 +185,50 @@ def icon_href(ex):
     return None
 
 
+def asset_integrity(final, html):
+    """Is every stylesheet and script this page depends on actually text?
+
+    Three times in one estate a build served a file that returned 200 and was
+    binary garbage: a package-lock.json that npm ci could never parse, so CI had
+    never once passed; an index.html that was JSON-wrapped base64 and could never
+    render; and an index.css that was 54% non-printable bytes, truncating inside
+    a `.hamburger` rule, which left a site serving twelve parsed rules and no
+    layout for a fortnight.
+
+    Nothing caught any of them. The route returned 200. The asset returned 200.
+    A typeface survey read the families out of the readable prefix and called the
+    site styled. The corruption is only visible if you look at the bytes.
+    """
+    out = []
+    assets = []
+    for m in re.finditer(r'<link[^>]+rel=["\']?stylesheet["\']?[^>]*>', html, re.I):
+        h = re.search(r'href=["\']([^"\']+)', m.group(0))
+        if h and not h.group(1).startswith("data:"):
+            assets.append(("stylesheet", h.group(1)))
+    for m in re.finditer(r'<script[^>]+src=["\']([^"\']+)', html, re.I):
+        assets.append(("script", m.group(1)))
+
+    for kind, href in assets[:12]:
+        u = urljoin(final, href)
+        if urlparse(u).netloc != urlparse(final).netloc:
+            continue                      # third-party bundles are not ours to grade
+        st, body, _, _ = fetch(u)
+        if st != 200 or not body:
+            continue                      # reachability is already covered elsewhere
+        raw = body.encode("utf-8", "surrogateescape")
+        printable = sum(1 for b in raw if 9 <= b <= 13 or 32 <= b <= 126)
+        share = printable / max(len(raw), 1)
+        if share < 0.85:
+            out.append(("blocker",
+                        f"{kind} {href} is {100*(1-share):.0f}% non-printable bytes — "
+                        f"it returns 200 and the browser cannot parse it"))
+        elif kind == "stylesheet" and body.count("{") - body.count("}") > 1:
+            out.append(("major",
+                        f"stylesheet {href} has {body.count('{') - body.count('}')} "
+                        f"unclosed rule(s) — everything after the break is discarded"))
+    return out
+
+
 def check_page(base, url, deep=True):
     """Evaluate one page. Returns a dict of findings."""
     st, html, final, ctype = fetch(url)
@@ -230,6 +274,8 @@ def check_page(base, url, deep=True):
         f.append(("major", "no meta description"))
     if "canonical" not in ex.linkrel:
         f.append(("minor", "no canonical URL"))
+
+    f.extend(asset_integrity(final, html))
 
     ic = icon_href(ex)
     if not ic:
