@@ -217,6 +217,21 @@ build pass while it was pointing users at dead pages.
 Both were found the same way as the false positives: by hand-checking a
 result the tool called clean.
 
+## A timeout is not a defect
+
+Running several sweeps at once against one host produced five "route returns
+HTTP no response" blockers on a site that answers every route in 0.4 seconds.
+The most severe class the tool has, describing nothing but my own concurrency.
+
+A transport failure is now retried twice more with escalating timeouts before
+it can become a blocker: a genuinely unreachable route fails all three, a
+loaded one succeeds on a longer one. The wording says which was tested.
+
+Same lesson as the caps, from the other direction. There the tool stayed quiet
+about what it had not measured; here it shouted about something it had not
+measured properly. Both are the instrument reporting on itself and calling it
+the work.
+
 ## The third silent cap, in route discovery
 
 `discover()` returned `sorted(seen)[:40]` and said nothing. rn-portfolio has

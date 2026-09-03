@@ -188,9 +188,28 @@ def icon_href(ex):
 def check_page(base, url, deep=True):
     """Evaluate one page. Returns a dict of findings."""
     st, html, final, ctype = fetch(url)
+    # status 0 is a transport failure, which is a statement about this run and
+    # not about the route. Concurrent sweeps against one host produced five of
+    # them on a site that answers every route in 0.4s, and they were reported as
+    # blockers — the most severe class the tool has. Escalate the effort before
+    # believing it: a genuinely unreachable route fails all three attempts, a
+    # loaded one succeeds on a longer timeout.
+    if st == 0:
+        for extra in (2, 4):
+            time.sleep(1.5 * extra)
+            global TIMEOUT
+            _saved, TIMEOUT = TIMEOUT, TIMEOUT * extra
+            try:
+                st, html, final, ctype = fetch(url, _retry=False)
+            finally:
+                TIMEOUT = _saved
+            if st:
+                break
     if st != 200 or not html:
+        why = (f"route returns HTTP {st}" if st else
+               "route did not respond on three attempts with escalating timeouts")
         return {"url": url, "status": st, "fatal": True, "skipped": False,
-                "findings": [("blocker", f"route returns HTTP {st or 'no response'}")]}
+                "findings": [("blocker", why)]}
     # Only HTML routes are graded as pages; data/assets are reachability-only.
     if ctype and ctype not in ("text/html", "application/xhtml+xml"):
         return {"url": url, "status": st, "fatal": False, "skipped": True,
