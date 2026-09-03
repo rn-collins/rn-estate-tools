@@ -300,7 +300,15 @@ def check_page(base, url, deep=True):
         if not h or h.startswith(("#", "mailto:", "tel:", "javascript:", "data:")):
             continue
         u = urljoin(final, h).split("#")[0]
-        (internal if urlparse(u).netloc == urlparse(base).netloc else external).add(u)
+        # RFC 2606 / RFC 6761 reserve these for documentation and examples. They
+        # are supposed not to resolve, so grading them as citations reports a
+        # correct placeholder as a dead source — rn-portfolio uses example.org
+        # for demo records it labels "Synthetic" on the page.
+        host = urlparse(u).netloc.lower().split(":")[0]
+        if host in ("example.com", "example.org", "example.net", "example.edu") \
+           or host.endswith((".example", ".invalid", ".test", ".localhost")):
+            continue
+        (internal if host == urlparse(base).netloc else external).add(u)
 
     if deep:
         # The cap exists so one link-farm page cannot stall a whole run. It must

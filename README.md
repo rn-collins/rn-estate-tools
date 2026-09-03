@@ -217,6 +217,20 @@ build pass while it was pointing users at dead pages.
 Both were found the same way as the false positives: by hand-checking a
 result the tool called clean.
 
+## Reserved example domains are not dead links
+
+rn-portfolio's build 028 demonstrates a ranking engine over records it labels,
+on the page, "Synthetic agency implementation record", citing
+`https://example.org/synthetic/agency-record`. That is exactly what RFC 2606
+reserves example.org for, and the labelling is honest. The gate called it a
+dead source, and the obvious repair would have been to invent a real citation
+for data that is openly synthetic — turning a correct disclosure into a
+fabrication.
+
+example.com/org/net/edu and the .example/.invalid/.test/.localhost suffixes are
+now skipped rather than graded. Reserved domains are supposed not to resolve;
+that is the whole point of them.
+
 ## A timeout is not a defect
 
 Running several sweeps at once against one host produced five "route returns
