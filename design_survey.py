@@ -76,6 +76,14 @@ def signature(url):
             css += " " + _get(urljoin(url, href.group(1)), 700_000)
 
     fams = {f for m in FAM.finditer(css) if (f := _norm(m.group(1) or m.group(2)))}
+    # A self-hosted face is declared once in @font-face and then referenced
+    # through a custom property, which the rules above filter out as junk. Two
+    # redesigned builds reported "no typeface chosen" while the browser was
+    # rendering Public Sans and Libre Franklin, because CSP style-src 'self'
+    # forces self-hosting here. Read the @font-face names directly.
+    for m in re.finditer(r"@font-face\s*{[^}]*?font-family\s*:\s*([^;}]+)", css, re.S):
+        if (f := _norm(m.group(1))):
+            fams.add(f)
     google = set()
     for m in re.finditer(r'fonts\.googleapis\.com/css2?\?family=([^&"\'>]+)', html + css):
         google.update(x.split(":")[0].replace("+", " ").lower()
