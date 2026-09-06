@@ -46,6 +46,10 @@ TIMEOUT = 25
 # Thresholds. Raise deliberately; never lower to make a build pass.
 MIN_WORDS = 400          # below this a page is a stub, not a product
 MAX_HEDGE_PCT = 30       # above this it reads as an internal audit memo
+# A ratio needs a sample: below this many prose sentences one line flips the
+# verdict. And a page already carrying this many unhedged claims is not a memo.
+HEDGE_MIN_SENTS = 25
+HEDGE_SUBSTANCE = 20
 
 # Legal and policy pages are supposed to be full of qualifications — that is the
 # genre working correctly, not an audit memo. Applying the prose ceiling to them
@@ -303,8 +307,35 @@ def check_page(base, url, deep=True):
     policy = bool(POLICY_ROUTE.search(urlparse(final).path or "/"))
     if len(words) < MIN_WORDS and not policy:
         f.append(("major", f"stub: {len(words)} visible words (floor {MIN_WORDS})"))
+    # The ratio alone misfires in two directions, and both were found on real
+    # pages here rather than reasoned about:
+    #
+    #   A build page carries 588 words but only 13 prose sentences, because the
+    #   body is a working tool made of labels — Owner, Control, Stop authority —
+    #   which are not sentences. Four boundary lines in a six-line preamble then
+    #   read as 38%. One sentence either way flips the verdict, so a ratio over
+    #   a sample that small is noise.
+    #
+    #   A record page carries 2,404 words, 131 sentences, 91 of them substantive
+    #   claims and 40 stating limits. Calling that "an audit memo" is exactly
+    #   backwards: stating limits is the genre's job, and there is no shortage
+    #   of substance to hedge against.
+    #
+    # So the ceiling is applied only where it can mean something: a large enough
+    # prose sample, and a page that is NOT already carrying plenty of unhedged
+    # claims. Everything else is still reported, at minor, with the reason —
+    # the number is never hidden, only its severity is honest about confidence.
+    clean = len(sents) - len(hedged)
     if pct > MAX_HEDGE_PCT and not policy:
-        f.append(("major", f"reads as an audit memo: {pct}% of sentences are caveats (ceiling {MAX_HEDGE_PCT}%)"))
+        if len(sents) < HEDGE_MIN_SENTS:
+            f.append(("minor", f"{pct}% of sentences are caveats, but only {len(sents)} prose "
+                               f"sentences to judge on (need {HEDGE_MIN_SENTS}); page is mostly non-prose"))
+        elif clean >= HEDGE_SUBSTANCE:
+            f.append(("minor", f"{pct}% of sentences are caveats, alongside {clean} unhedged "
+                               f"claims — reads as a record stating its limits, not as a memo"))
+        else:
+            f.append(("major", f"reads as an audit memo: {pct}% of sentences are caveats "
+                               f"(ceiling {MAX_HEDGE_PCT}%) with only {clean} unhedged claims"))
 
     # ---- ACCESS ----------------------------------------------------------
     if not ex.lang:
