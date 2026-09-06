@@ -21,6 +21,9 @@
  *     scored against white when it actually sits on a tint. #767676 — the
  *     value usually quoted as "AA on white" — measured 4.09:1 that way.
  *
+ * Fallback content inside <video>/<audio>/<canvas>/<object> is marked
+ * fallbackOnly:true and not scored — it renders only when the element cannot.
+ *
  * Colour-font emoji are marked emojiOnly:true and not scored; CSS `color`
  * does not paint them.
  *
@@ -155,6 +158,18 @@
     // A bare dingbat such as U+2713 is NOT exempt — it does honour `color` —
     // so a character only qualifies with default emoji presentation or an
     // explicit U+FE0F variation selector.
+    // Text inside <video>, <audio>, <canvas> or <object> is fallback content:
+    // the browser renders it ONLY when it cannot render the element itself. On
+    // a page whose <video> has a working source, "Your browser cannot play this
+    // video." is never on screen. 39 such nodes across one build were being
+    // scored against the video's own black backdrop.
+    var fallbackOnly=false;
+    if(tag==='VIDEO'||tag==='AUDIO'||tag==='CANVAS'||tag==='OBJECT') fallbackOnly=true;
+    else if(el.closest){
+      var media=el.closest('video,audio,canvas,object');
+      if(media) fallbackOnly=true;
+    }
+
     var emojiOnly=false;
     try{
       var core=text.replace(/[\s\u200D\uFE0F]|\p{Emoji_Modifier}/gu,'');
@@ -206,7 +221,7 @@
     var large=(fpx>=24)||(fpx>=18.66&&w>=700);
     out.push({sel:tag+(el.id?'#'+el.id:'')+(el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\s+/).join('.'):''),
       text:text.slice(0,60), fg:hex(fg), fgEff:hex(worstfg), bg:hex(worstbg), ratio:Math.round(worst*100)/100,
-      px:Math.round(fpx*10)/10, weight:w, large:large, clipText:clipText, stateGlyph:stateGlyph, emojiOnly:emojiOnly,
+      px:Math.round(fpx*10)/10, weight:w, large:large, clipText:clipText, stateGlyph:stateGlyph, emojiOnly:emojiOnly, fallbackOnly:fallbackOnly,
       pass: worst >= (large?3:4.5), passAA: worst>=4.5});
   }
   out.sort(function(a,b){return a.ratio-b.ratio;});

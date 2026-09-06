@@ -118,7 +118,7 @@ async function auditOne(url) {
     const rows = JSON.parse(raw);
     // clipText rows are not scored: their computed colour is not the painted
     // one. They are reported separately so a real problem is not hidden either.
-    const fails = rows.filter(r => !r.pass && !r.stateGlyph && !r.emojiOnly);
+    const fails = rows.filter(r => !r.pass && !r.stateGlyph && !r.emojiOnly && !r.fallbackOnly);
     const review = rows.filter(r => r.clipText);   // now scored, reported for provenance
     const stateGlyphs = rows.filter(r => r.stateGlyph && !r.pass);
     return {
@@ -130,7 +130,7 @@ async function auditOne(url) {
       clipTextRows: review.map(r => ({ sel: r.sel, text: r.text, px: r.px })),
       // worst over SCORED rows only: reporting 1.00 because an intentionally
       // invisible checkbox tick exists tells you nothing about the page.
-      worst: (() => { const sc = rows.filter(r => !r.stateGlyph && !r.emojiOnly);
+      worst: (() => { const sc = rows.filter(r => !r.stateGlyph && !r.emojiOnly && !r.fallbackOnly);
         return sc.length ? Math.min(...sc.map(r => r.ratio)) : null; })(),
       failing: fails.map(r => ({
         sel: r.sel, text: r.text, ratio: r.ratio, fg: r.fg, fgEff: r.fgEff,
