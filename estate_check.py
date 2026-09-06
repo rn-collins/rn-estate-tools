@@ -103,6 +103,40 @@ def fetch(url, method="GET", _retry=True, ua=UA):
         return 0, "", url, ""
 
 
+def fetch_asset(url):
+    """Return (status, raw_bytes, content_encoding) for an asset.
+
+    asset_integrity has to look at bytes, and bytes arrive compressed. Vercel
+    serves /_vercel/speed-insights/script.js as Brotli and ignores
+    `Accept-Encoding: identity`, so a naive read sees 61% non-printable bytes and
+    calls a perfectly good script corrupt. That fired as a BLOCKER on every build
+    with Speed Insights enabled.
+
+    gzip and deflate are decoded here. Brotli and zstd have no decoder in this
+    interpreter, so they are reported as-is and the caller skips them: "I could
+    not decode this" must never be published as "this is corrupt".
+    """
+    req = urllib.request.Request(url, headers={"User-Agent": UA,
+                                               "Accept-Encoding": "gzip, deflate"})
+    try:
+        with _OPENER.open(req, timeout=TIMEOUT) as r:
+            raw = r.read(3_000_000)
+            enc = (r.headers.get("Content-Encoding") or "").strip().lower()
+            if enc == "gzip":
+                import gzip as _gz
+                raw, enc = _gz.decompress(raw), ""
+            elif enc == "deflate":
+                import zlib as _zl
+                try:
+                    raw = _zl.decompress(raw)
+                except zlib_error:
+                    raw = _zl.decompress(raw, -_zl.MAX_WBITS)
+                enc = ""
+            return r.status, raw, enc
+    except Exception:
+        return 0, b"", ""
+
+
 def status_only(url):
     st, _, _, _ = fetch(url, "HEAD")
     # Some hosts answer HEAD with 404 for a document that GET serves at 200 —
@@ -216,10 +250,12 @@ def asset_integrity(final, html):
         u = urljoin(final, href)
         if urlparse(u).netloc != urlparse(final).netloc:
             continue                      # third-party bundles are not ours to grade
-        st, body, _, _ = fetch(u)
-        if st != 200 or not body:
+        st, raw, enc = fetch_asset(u)
+        if st != 200 or not raw:
             continue                      # reachability is already covered elsewhere
-        raw = body.encode("utf-8", "surrogateescape")
+        if enc:
+            continue                      # compressed with a codec we cannot decode
+        body = raw.decode("utf-8", "replace")
         printable = sum(1 for b in raw if 9 <= b <= 13 or 32 <= b <= 126)
         share = printable / max(len(raw), 1)
         if share < 0.85:
