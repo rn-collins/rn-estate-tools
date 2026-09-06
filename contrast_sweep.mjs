@@ -27,7 +27,8 @@ import { join } from 'node:path';
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const AUDIT = new URL('./contrast_audit.js', import.meta.url);
-const PORT = 9333 + Math.floor(Math.random() * 400);
+let PORT = 9333 + Math.floor(Math.random() * 400);
+let PORT2 = null, chrome2 = null;
 
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i === -1 ? d : args[i + 1]; };
@@ -45,7 +46,7 @@ const auditSrc = readFileSync(AUDIT, 'utf-8');
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function http(path) {
-  const res = await fetch(`http://127.0.0.1:${PORT}${path}`, { method: path.startsWith('/json/new') ? 'PUT' : 'GET' });
+  const res = await fetch(`http://127.0.0.1:${PORT2 || PORT}${path}`, { method: path.startsWith('/json/new') ? 'PUT' : 'GET' });
   const text = await res.text();
   try { return JSON.parse(text); } catch { return text; }
 }
@@ -156,6 +157,7 @@ const chrome = spawn(CHROME, [
 // down the user's own browser mid-session.
 const shutdown = () => {
   try { chrome.kill('SIGTERM'); } catch {}
+  if (chrome2) { try { chrome2.kill('SIGTERM'); } catch {} }
   setTimeout(() => { try { chrome.kill('SIGKILL'); } catch {} }, 3000).unref();
   try { rmSync(profile, { recursive: true, force: true }); } catch {}
 };
@@ -168,7 +170,26 @@ for (let i = 0; i < 100; i++) {
   const v = await http('/json/version').catch(() => null);
   if (v && v.webSocketDebuggerUrl) { up = true; break; }
 }
-if (!up) { console.error('chrome did not expose a debugging port'); process.exit(2); }
+if (!up) {
+  // The port is chosen at random and can collide, and a cold Chrome sometimes
+  // needs longer than the first window allows. One retry on a fresh port beats
+  // losing a 50-minute sweep to a transient bind failure.
+  console.error('debugging port did not come up; retrying once on a new port');
+  try { chrome.kill('SIGTERM'); } catch {}
+  await sleep(1500);
+  PORT2 = 9333 + Math.floor(Math.random() * 400);
+  chrome2 = spawn(CHROME, [
+    '--headless=new', '--disable-gpu', '--hide-scrollbars', '--mute-audio',
+    '--no-first-run', '--no-default-browser-check',
+    `--remote-debugging-port=${PORT2}`, `--user-data-dir=${profile}2`, 'about:blank',
+  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  for (let i = 0; i < 150; i++) {
+    await sleep(200);
+    const v = await fetch(`http://127.0.0.1:${PORT2}/json/version`).then(r => r.json()).catch(() => null);
+    if (v && v.webSocketDebuggerUrl) { up = true; break; }
+  }
+  if (!up) { console.error('chrome did not expose a debugging port after retry'); process.exit(2); }
+}
 
 const results = [];
 for (const url of urls) {
