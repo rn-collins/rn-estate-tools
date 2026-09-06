@@ -28,8 +28,9 @@
  * scored — they are meant to be invisible until the control is checked.
  *
  * Gradient-clipped text (background-clip:text + transparent text-fill) is
- * marked clipText:true and must be judged by eye — its computed `color` is not
- * the colour on screen, so any ratio computed from it is fiction.
+ * scored from its gradient stops against what sits behind the element, since
+ * the computed `color` is not the colour on screen. It is still flagged
+ * clipText:true so you can tell how the number was reached.
  *
  * What it CANNOT see, and you must handle yourself: anything behind
  * display:none. Steppers and tabbed panels hide every panel but the first,
@@ -179,12 +180,26 @@
     var fillc=parse(fillv);
     var clipText=clipv.indexOf('text')>-1 &&
       (fillv==='transparent'||(fillc&&fillc.a===0));
-    var bgs=backgrounds(el);
+    // For gradient-clipped text the element's own background-image IS the ink,
+    // so it must not be treated as the ground: score every stop of that
+    // gradient against what sits BEHIND the element. This used to be deferred
+    // to human eyes; it is measurable, and seven headings across three builds
+    // turned out to pass comfortably once measured the right way.
+    var fgs=[fg], bgs;
+    if(clipText){
+      var paint=hexstops(s.backgroundImage);
+      if(paint.length){ fgs=paint; }
+      bgs=backgrounds(el.parentElement||el);
+    } else {
+      bgs=backgrounds(el);
+    }
     var worst=null, worstbg=null, worstfg=null;
     for(var k=0;k<bgs.length;k++){
-      var f=fg.a<1?over(fg,bgs[k]):fg;
-      var r=ratio(f,bgs[k]);
-      if(worst===null||r<worst){worst=r;worstbg=bgs[k];worstfg=f;}
+      for(var q=0;q<fgs.length;q++){
+        var f=fgs[q].a<1?over(fgs[q],bgs[k]):fgs[q];
+        var r=ratio(f,bgs[k]);
+        if(worst===null||r<worst){worst=r;worstbg=bgs[k];worstfg=f;}
+      }
     }
     var fpx=parseFloat(s.fontSize);
     var w=parseInt(s.fontWeight,10)||400;

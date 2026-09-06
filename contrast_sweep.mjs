@@ -118,8 +118,8 @@ async function auditOne(url) {
     const rows = JSON.parse(raw);
     // clipText rows are not scored: their computed colour is not the painted
     // one. They are reported separately so a real problem is not hidden either.
-    const fails = rows.filter(r => !r.pass && !r.clipText && !r.stateGlyph && !r.emojiOnly);
-    const review = rows.filter(r => r.clipText);
+    const fails = rows.filter(r => !r.pass && !r.stateGlyph && !r.emojiOnly);
+    const review = rows.filter(r => r.clipText);   // now scored, reported for provenance
     const stateGlyphs = rows.filter(r => r.stateGlyph && !r.pass);
     return {
       url,
@@ -128,7 +128,10 @@ async function auditOne(url) {
       clipText: review.length,
       stateGlyphs: stateGlyphs.length,
       clipTextRows: review.map(r => ({ sel: r.sel, text: r.text, px: r.px })),
-      worst: rows.length ? rows[0].ratio : null,
+      // worst over SCORED rows only: reporting 1.00 because an intentionally
+      // invisible checkbox tick exists tells you nothing about the page.
+      worst: (() => { const sc = rows.filter(r => !r.stateGlyph && !r.emojiOnly);
+        return sc.length ? Math.min(...sc.map(r => r.ratio)) : null; })(),
       failing: fails.map(r => ({
         sel: r.sel, text: r.text, ratio: r.ratio, fg: r.fg, fgEff: r.fgEff,
         bg: r.bg, px: r.px, weight: r.weight, large: r.large,
@@ -173,7 +176,7 @@ for (const url of urls) {
   results.push(r);
   const name = url.replace('https://', '').replace('.vercel.app', '').replace(/\/$/, '');
   if (r.error) console.log(`  !! ${name.padEnd(38)} ${r.error}`);
-  else console.log(`  ${(r.failures ? 'FAIL' : 'ok  ')} ${name.padEnd(38)} ${String(r.failures).padStart(4)} / ${String(r.nodes).padEnd(5)} worst ${r.worst}${r.clipText ? `   (${r.clipText} gradient-text, by eye)` : ''}`);
+  else console.log(`  ${(r.failures ? 'FAIL' : 'ok  ')} ${name.padEnd(38)} ${String(r.failures).padStart(4)} / ${String(r.nodes).padEnd(5)} worst ${r.worst}${r.clipText ? `   (${r.clipText} gradient-text, scored)` : ''}`);
 }
 
 const bad = results.filter(r => r.failures > 0);
