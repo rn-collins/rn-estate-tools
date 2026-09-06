@@ -504,12 +504,12 @@ def discover(base, limit=200):
     return allu[:limit], len(allu)
 
 
-def run(base, deep=True, routes=None):
+def run(base, deep=True, routes=None, max_routes=200):
     t0 = time.time()
     if routes:
         urls, found = routes, len(routes)
     else:
-        urls, found = discover(base)
+        urls, found = discover(base, limit=max_routes)
     pages = [check_page(base, u, deep=deep) for u in urls]
     if found > len(urls):
         pages.append({
@@ -562,6 +562,11 @@ def main():
     ap.add_argument("--json", help="write the full report here")
     ap.add_argument("--shallow", action="store_true", help="skip link resolution (fast)")
     ap.add_argument("--quiet", action="store_true", help="summary lines only")
+    # The cap exists so a 451-route site does not take an hour by default, but a
+    # capped run leaves pages ungraded, and the portfolio had 251 of them. Make
+    # the ceiling raisable rather than something to work around.
+    ap.add_argument("--max-routes", type=int, default=200,
+                    help="route ceiling per site (default 200)")
     a = ap.parse_args()
 
     targets = []
@@ -572,7 +577,7 @@ def main():
     else:
         ap.error("give a URL or --batch")
 
-    reports = [run(t, deep=not a.shallow) for t in targets]
+    reports = [run(t, deep=not a.shallow, max_routes=a.max_routes) for t in targets]
     for r in reports:
         render(r, verbose=not a.quiet)
 
