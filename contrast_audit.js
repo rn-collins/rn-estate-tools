@@ -21,6 +21,9 @@
  *     scored against white when it actually sits on a tint. #767676 — the
  *     value usually quoted as "AA on white" — measured 4.09:1 that way.
  *
+ * Text inside a disabled control is marked inactive:true and not scored —
+ * WCAG 1.4.3 exempts inactive user interface components.
+ *
  * Fallback content inside <video>/<audio>/<canvas>/<object> is marked
  * fallbackOnly:true and not scored — it renders only when the element cannot.
  *
@@ -163,6 +166,17 @@
     // a page whose <video> has a working source, "Your browser cannot play this
     // video." is never on screen. 39 such nodes across one build were being
     // scored against the video's own black backdrop.
+    // WCAG 1.4.3 exempts "text that is part of an inactive user interface
+    // component". A disabled button is greyed by the UA on purpose, and
+    // darkening it would misrepresent the control as available. One such
+    // button measured 2.00:1 and was correct as rendered.
+    var inactive=false;
+    if(el.disabled===true) inactive=true;
+    else if(el.closest){
+      var ctl=el.closest('button,input,select,textarea,fieldset,[aria-disabled="true"]');
+      if(ctl && (ctl.disabled===true || ctl.getAttribute('aria-disabled')==='true')) inactive=true;
+    }
+
     var fallbackOnly=false;
     if(tag==='VIDEO'||tag==='AUDIO'||tag==='CANVAS'||tag==='OBJECT') fallbackOnly=true;
     else if(el.closest){
@@ -221,7 +235,7 @@
     var large=(fpx>=24)||(fpx>=18.66&&w>=700);
     out.push({sel:tag+(el.id?'#'+el.id:'')+(el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\s+/).join('.'):''),
       text:text.slice(0,60), fg:hex(fg), fgEff:hex(worstfg), bg:hex(worstbg), ratio:Math.round(worst*100)/100,
-      px:Math.round(fpx*10)/10, weight:w, large:large, clipText:clipText, stateGlyph:stateGlyph, emojiOnly:emojiOnly, fallbackOnly:fallbackOnly,
+      px:Math.round(fpx*10)/10, weight:w, large:large, clipText:clipText, stateGlyph:stateGlyph, emojiOnly:emojiOnly, fallbackOnly:fallbackOnly, inactive:inactive,
       pass: worst >= (large?3:4.5), passAA: worst>=4.5});
   }
   out.sort(function(a,b){return a.ratio-b.ratio;});
