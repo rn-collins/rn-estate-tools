@@ -65,6 +65,12 @@ BENIGN_VALUE = re.compile(r"""(?ix)
     ^(process\.env|import\.meta|your[_-]|xxx+|placeholder|example|changeme|
       test|dummy|fake|sample|must-not|redacted|<.*>)""")
 
+# A value that is itself an ALL_CAPS identifier is the NAME of an environment
+# variable, not its contents. A vendored @upstash/redis diagnostic — "Please add
+# it via `wrangler secret put UPSTASH_REDIS_REST_URL`" — was the only hit across
+# 27 public repos, and it names a variable rather than leaking one.
+ENV_VAR_NAME = re.compile(r"^[A-Z][A-Z0-9_]{7,}$")
+
 def git(repo, *args, cap=80_000_000):
     try:
         out = subprocess.run(["git", "-C", str(repo), *args],
@@ -93,7 +99,7 @@ def scan_repo(path):
         if not line.startswith("+") or line.startswith("+++"):
             continue
         m = ASSIGN.search(line)
-        if m and not BENIGN_VALUE.match(m.group(3)):
+        if m and not BENIGN_VALUE.match(m.group(3)) and not ENV_VAR_NAME.match(m.group(3)):
             assigns.add(line.lstrip("+").strip()[:160])
 
     envs = {n for n in names.splitlines()
@@ -129,6 +135,9 @@ def self_test():
         '<link rel="mask-icon" href="/assets/govuk-icon-mask-' + "a1" * 32 + '.svg">\n')
     (r2 / ".env.local.example").write_text("ANTHROPIC_API_KEY=\n")
     (r2 / "fixture.ts").write_text('KV_REST_API_TOKEN: "must-not-mix-pairs",\n')
+    (r2 / "vendor.js").write_text(
+        'throw new Error(`Please add it via \\`wrangler secret put '
+        '${url ? "UPSTASH_REDIS_REST_URL" : "UPSTASH_REDIS_REST_TOKEN"}\\``)')
     run2("add", "-A"); run2("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "benign")
     g = scan_repo(r2)
     quiet = not g["credentials"] and not g["assignments"] and not g["env_files"]
