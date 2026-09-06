@@ -21,6 +21,16 @@
  *     scored against white when it actually sits on a tint. #767676 — the
  *     value usually quoted as "AA on white" — measured 4.09:1 that way.
  *
+ * Colour-font emoji are marked emojiOnly:true and not scored; CSS `color`
+ * does not paint them.
+ *
+ * Glyphs inside an unchecked aria control are marked stateGlyph:true and not
+ * scored — they are meant to be invisible until the control is checked.
+ *
+ * Gradient-clipped text (background-clip:text + transparent text-fill) is
+ * marked clipText:true and must be judged by eye — its computed `color` is not
+ * the colour on screen, so any ratio computed from it is fiction.
+ *
  * What it CANNOT see, and you must handle yourself: anything behind
  * display:none. Steppers and tabbed panels hide every panel but the first,
  * and that is exactly where status badges and disposition stamps live.
@@ -126,6 +136,49 @@
     if(!visible(el)) continue;
     var s=getComputedStyle(el);
     var fg=parse(s.color); if(!fg) continue;
+    // Gradient-clipped text: `background-clip:text` with a transparent
+    // text-fill paints the glyphs from the background image, so the computed
+    // `color` is not what anyone sees. Comparing it to the background yields
+    // exactly 1.00:1 and is meaningless. Nine such headings across four builds
+    // were reported as invisible text when they render as legible gradients.
+    // These are surfaced for human eyes instead of being scored.
+    // A glyph inside an unchecked control is invisible on purpose: the tick in
+    // `<li role="checkbox" aria-checked="false"><span class="box">*</span>` is
+    // coloured to disappear until the control fills with its accent. Two builds
+    // reported ten such ticks as invisible text; both were correct as authored.
+    // Only single decorative glyphs qualify — never a label or a sentence.
+    // Colour-font emoji ignore CSS `color` entirely: the glyph is painted from
+    // the emoji font, so a ratio computed from `color` describes a colour that
+    // was never on screen. Six microscope/building/cross icons on one build
+    // were reported as near-invisible while rendering in full colour.
+    // A bare dingbat such as U+2713 is NOT exempt — it does honour `color` —
+    // so a character only qualifies with default emoji presentation or an
+    // explicit U+FE0F variation selector.
+    var emojiOnly=false;
+    try{
+      var core=text.replace(/[\s\u200D\uFE0F]|\p{Emoji_Modifier}/gu,'');
+      if(core.length){
+        emojiOnly=true;
+        var chars=Array.from(text);
+        for(var ci=0;ci<chars.length;ci++){
+          var ch=chars[ci];
+          if(/[\s\u200D\uFE0F]/u.test(ch)||/\p{Emoji_Modifier}/u.test(ch)) continue;
+          var presented=/\p{Emoji_Presentation}/u.test(ch)||chars[ci+1]==='\uFE0F';
+          if(!presented){ emojiOnly=false; break; }
+        }
+      }
+    }catch(e){ emojiOnly=false; }
+
+    var stateGlyph=false;
+    if(text.length<=2){
+      var host=el.closest?el.closest('[role="checkbox"],[role="radio"],[role="switch"],[role="option"]'):null;
+      if(host&&host.hasAttribute('aria-checked')&&host.getAttribute('aria-checked')==='false') stateGlyph=true;
+    }
+    var clipv=(s.webkitBackgroundClip||s.backgroundClip||'')+'';
+    var fillv=(s.webkitTextFillColor||'')+'';
+    var fillc=parse(fillv);
+    var clipText=clipv.indexOf('text')>-1 &&
+      (fillv==='transparent'||(fillc&&fillc.a===0));
     var bgs=backgrounds(el);
     var worst=null, worstbg=null, worstfg=null;
     for(var k=0;k<bgs.length;k++){
@@ -138,7 +191,7 @@
     var large=(fpx>=24)||(fpx>=18.66&&w>=700);
     out.push({sel:tag+(el.id?'#'+el.id:'')+(el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\s+/).join('.'):''),
       text:text.slice(0,60), fg:hex(fg), fgEff:hex(worstfg), bg:hex(worstbg), ratio:Math.round(worst*100)/100,
-      px:Math.round(fpx*10)/10, weight:w, large:large,
+      px:Math.round(fpx*10)/10, weight:w, large:large, clipText:clipText, stateGlyph:stateGlyph, emojiOnly:emojiOnly,
       pass: worst >= (large?3:4.5), passAA: worst>=4.5});
   }
   out.sort(function(a,b){return a.ratio-b.ratio;});
