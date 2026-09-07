@@ -15,6 +15,7 @@
  *   node contrast_sweep.mjs --batch urls.txt --json contrast-report.json
  *   node contrast_sweep.mjs https://one-site.vercel.app
  *   ... --settle 2500     wait longer for client-rendered pages
+ *   ... --cookie n=v      audit a build that is behind an owner passphrase
  *
  * Exit status is the number of builds with at least one failure, capped at 250.
  */
@@ -31,6 +32,15 @@ let PORT = 9333 + Math.floor(Math.random() * 400);
 let PORT2 = null, chrome2 = null;
 
 const args = process.argv.slice(2);
+// --cookie name=value  (repeatable) — carried into every page in the sweep.
+const COOKIES = [];
+for (let i = 0; i < args.length; i += 1) {
+  if (args[i] === '--cookie') {
+    const eq = args[i + 1].indexOf('=');
+    COOKIES.push({ name: args[i + 1].slice(0, eq), value: args[i + 1].slice(eq + 1) });
+    args.splice(i, 2); i -= 1;
+  }
+}
 const opt = (n, d) => { const i = args.indexOf(n); return i === -1 ? d : args[i + 1]; };
 const settle = Number(opt('--settle', 1400));
 const outPath = opt('--json', null);
@@ -101,6 +111,12 @@ async function auditOne(url) {
   try {
     await cdp.ready;
     await cdp.send('Page.enable');
+    // Several builds in this estate sit behind an owner passphrase, so the
+    // pages worth auditing are the ones a bare fetch never sees.
+    if (COOKIES.length) {
+      await cdp.send('Network.enable');
+      await cdp.send('Network.setCookies', { cookies: COOKIES.map(c => ({ ...c, url })) });
+    }
     await cdp.send('Emulation.setDeviceMetricsOverride',
       { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
     const loaded = cdp.once('Page.loadEventFired', 30000);

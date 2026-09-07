@@ -21,6 +21,9 @@
  *     scored against white when it actually sits on a tint. #767676 — the
  *     value usually quoted as "AA on white" — measured 4.09:1 that way.
  *
+ * Outlined type (transparent -webkit-text-fill-color over a -webkit-text-stroke)
+ * is scored on its STROKE colour, which is the colour actually drawn.
+ *
  * Text inside a disabled control is marked inactive:true and not scored —
  * WCAG 1.4.3 exempts inactive user interface components.
  *
@@ -204,6 +207,16 @@
       var host=el.closest?el.closest('[role="checkbox"],[role="radio"],[role="switch"],[role="option"]'):null;
       if(host&&host.hasAttribute('aria-checked')&&host.getAttribute('aria-checked')==='false') stateGlyph=true;
     }
+    // Outlined display type: a transparent fill with a -webkit-text-stroke is
+    // drawn by the STROKE, so the stroke colour is what a reader sees. A 110px
+    // headline reading "the beginning." scored 1.00:1 on its invisible fill
+    // while rendering as clean outlined letterforms.
+    var strokeW=parseFloat(s.webkitTextStrokeWidth||'0')||0;
+    var strokeC=parse(s.webkitTextStrokeColor||'');
+    var fillIsClear=(s.webkitTextFillColor==='transparent')||
+                    (parse(s.webkitTextFillColor||'')||{a:1}).a===0;
+    if(strokeW>0 && strokeC && strokeC.a>0 && fillIsClear){ fg=strokeC; }
+
     var clipv=(s.webkitBackgroundClip||s.backgroundClip||'')+'';
     var fillv=(s.webkitTextFillColor||'')+'';
     var fillc=parse(fillv);
