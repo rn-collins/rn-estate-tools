@@ -60,6 +60,25 @@ POLICY_ROUTE = re.compile(
     r"/(privacy|terms|legal|licen[cs]e|disclaimer|cookies?|accessibility|"
     r"institutional-disclaimer|dmca|imprint)(\.html)?/?$", re.I)
 
+# rn:kind — the page tells the gate what genre it is, so the gate can judge it
+# by the right standard instead of by length. Declared in the page head:
+#
+#   <meta name="rn:kind" content="reference">
+#   <meta name="rn:entries" content="37">      (optional, strongly preferred)
+#
+# "reference" is a page whose job is to list and link: a sources page, an
+# index, a bibliography, an image-credit list. Its quality is completeness,
+# not length. A 400-word floor would push toward padding it; a short page that
+# lists every source behind a post is a complete page. So a reference page is
+# exempt from the word floor and the hedge ceiling, and graded instead on:
+#   - it has entries at all (<li>/<dd> items) and says what it is (h1 + description);
+#   - no section is empty (every <h2> is followed by at least one entry);
+#   - when rn:entries is declared, the rendered entry count equals it, which
+#     proves nothing the page's data held was silently dropped;
+#   - every link resolves (the normal FUNCTION checks, unchanged).
+# Unknown rn:kind values are reported and graded as ordinary prose pages.
+RN_KINDS = {"reference"}
+
 HEDGE = re.compile(
     r"\b(not (?:a|an|intended|vetting|endorsement|legal advice|medical advice|validated|approved)"
     r"|does not|do not|cannot|unvalidated|no warranty|disclaimer|caveat"
@@ -160,6 +179,10 @@ class Extract(HTMLParser):
         self._skip = 0
         self._in_label = 0
         self.text = []
+        # Entries are <li> and <dd> items; sections are runs of entries after
+        # each <h2>. Used by the rn:kind="reference" completeness check.
+        self.entries, self.sections, self._h2 = 0, [], None
+        self._chrome = 0  # inside <nav>/<footer>: site chrome, not the page's own list
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -186,8 +209,17 @@ class Extract(HTMLParser):
         elif tag == "label":
             self.labels.append(a)
             self._in_label += 1
-        elif tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
+        if tag in ("nav", "footer"):
+            self._chrome += 1
+        if tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
             self.headings.append(int(tag[1]))
+            if tag == "h2" and not self._chrome:
+                self.sections.append([a.get("id", ""), "", 0])
+                self._h2 = len(self.sections) - 1
+        elif tag in ("li", "dd") and not self._chrome:
+            self.entries += 1
+            if self.sections:
+                self.sections[-1][2] += 1
         elif tag == "meta":
             key = a.get("name") or a.get("property")
             if key:
@@ -198,6 +230,10 @@ class Extract(HTMLParser):
                 self.linkrel[rel] = a.get("href", "")
 
     def handle_endtag(self, tag):
+        if tag in ("nav", "footer") and self._chrome:
+            self._chrome -= 1
+        if tag == "h2":
+            self._h2 = None
         if tag == "label" and self._in_label:
             self._in_label -= 1
         if tag == "title":
@@ -206,6 +242,8 @@ class Extract(HTMLParser):
             self._skip -= 1
 
     def handle_data(self, d):
+        if self._h2 is not None:
+            self.sections[self._h2][1] += d
         if self._in_title:
             self.title += d
         elif not self._skip:
@@ -341,7 +379,28 @@ def check_page(base, url, deep=True):
     hedged = [s for s in sents if HEDGE.search(s)]
     pct = round(100 * len(hedged) / len(sents)) if sents else 0
     policy = bool(POLICY_ROUTE.search(urlparse(final).path or "/"))
-    if len(words) < MIN_WORDS and not policy:
+    kind = (ex.meta.get("rn:kind") or "").strip().lower()
+    if kind and kind not in RN_KINDS:
+        f.append(("minor", f"unknown rn:kind \"{kind}\"; graded as a prose page (known: {', '.join(sorted(RN_KINDS))})"))
+        kind = ""
+    reference = kind == "reference"
+    if reference:
+        if ex.entries == 0:
+            f.append(("major", "rn:kind=reference but the page lists no entries (<li>/<dd>)"))
+        if 1 not in ex.headings:
+            f.append(("major", "rn:kind=reference page has no h1 saying what it lists"))
+        empty = [re.sub(r"\s+", " ", t).strip() or i or "untitled" for i, t, n in ex.sections if n == 0]
+        if empty:
+            f.append(("major", f"empty section(s) on a reference page: {', '.join(empty[:5])}"))
+        declared = (ex.meta.get("rn:entries") or "").strip()
+        if declared:
+            if not declared.isdigit():
+                f.append(("minor", f"rn:entries is not a number: {declared!r}"))
+            elif int(declared) != ex.entries:
+                f.append(("major", f"incomplete: page declares {declared} entries but renders {ex.entries}"))
+        else:
+            f.append(("minor", "rn:kind=reference without rn:entries; completeness is not verified, only presence"))
+    if len(words) < MIN_WORDS and not policy and not reference:
         f.append(("major", f"stub: {len(words)} visible words (floor {MIN_WORDS})"))
     # The ratio alone misfires in two directions, and both were found on real
     # pages here rather than reasoned about:
@@ -362,7 +421,7 @@ def check_page(base, url, deep=True):
     # claims. Everything else is still reported, at minor, with the reason —
     # the number is never hidden, only its severity is honest about confidence.
     clean = len(sents) - len(hedged)
-    if pct > MAX_HEDGE_PCT and not policy:
+    if pct > MAX_HEDGE_PCT and not policy and not reference:
         if len(sents) < HEDGE_MIN_SENTS:
             f.append(("minor", f"{pct}% of sentences are caveats, but only {len(sents)} prose "
                                f"sentences to judge on (need {HEDGE_MIN_SENTS}); page is mostly non-prose"))
@@ -469,7 +528,7 @@ def check_page(base, url, deep=True):
 
     return {
         "url": url, "status": st, "fatal": False, "findings": f,
-        "words": len(words), "hedge_pct": pct,
+        "words": len(words), "hedge_pct": pct, "kind": kind or "prose", "entries": ex.entries,
         "links": len(ex.links), "internal": len(internal), "external": len(external),
     }
 

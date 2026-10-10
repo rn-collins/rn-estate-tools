@@ -97,13 +97,46 @@ A build passes only when it exits 0.
 |---|---|
 | **Function** | every route 200 · no `href="#"` · internal and external links resolve · in-page anchors point at ids that exist |
 | **Present** | title · description · canonical · favicon · og:image that actually loads · og:title · apple-touch-icon |
-| **Substance** | ≥400 visible words · ≤30% caveat/hedge density |
+| **Substance** | ≥400 visible words · ≤30% caveat/hedge density (pages tagged `rn:kind="reference"` are judged on completeness instead; see below) |
 | **Access** | heading order · alt text · form labels · `lang` |
 
 The substance thresholds are the interesting ones. They encode two failures
 that recur across the estate: pages that are stubs pretending to be products,
 and pages whose process vocabulary crowds out their content. Raise them
 deliberately; never lower one to make a build pass.
+
+### `rn:kind`: tell the gate what a page is
+
+One tag, used on anything RN publishes, that says which standard a page should
+be judged by. Put it in the page head:
+
+```html
+<meta name="rn:kind" content="reference">
+<meta name="rn:entries" content="19">
+```
+
+| `rn:kind` | Use it for | Judged on |
+|---|---|---|
+| *(none)* | articles, case studies, product pages | the full gate, including the 400-word floor and the hedge ceiling |
+| `reference` | pages whose job is to list and link: sources pages, indexes, bibliographies, image-credit lists, archives | **completeness, not length**: it lists entries, it has an h1 saying what it lists, no section is empty, every link resolves, and the rendered entry count equals `rn:entries` |
+
+The rule behind it: be complete and detailed, never padded. A word floor on a
+list pushes toward filler; a sources page that names every study and every
+image behind a post is complete at whatever length that takes. Prose pages keep
+the floor, because there a short page usually is a stub.
+
+`rn:entries` is the number of entries the page's own data holds (count `<li>`
+and `<dd>` items outside `<nav>` and `<footer>`). Declaring it turns
+"looks finished" into a check: if one record fails to render, the counts
+disagree and the page fails. Without it the gate can only confirm entries exist,
+and says so.
+
+An unknown `rn:kind` value is reported and the page is graded as prose, so a
+typo cannot quietly exempt a page. Add a new kind only together with the
+standard it is judged by.
+
+In Next.js: `export const metadata = { other: { "rn:kind": "reference", "rn:entries": String(n) } }`.
+First used on `rn-selected-work.vercel.app/sources` (Oct 2026).
 
 ### Known handling
 
