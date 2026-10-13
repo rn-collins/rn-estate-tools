@@ -1,0 +1,35 @@
+# RN's rule (Oct 13, 2026): every commit ends with a Made-with line naming the AI, product, account nickname and chat.
+# See AGENTS.md. This check marks any pushed commit without that line with a red X.
+name: Made-with line
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Every new commit carries a Made-with line
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ -n "$BASE_SHA" ]; then range="$BASE_SHA..$HEAD_SHA"
+          elif [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then range="$AFTER~1..$AFTER"
+          else range="$BEFORE..$AFTER"; fi
+          missing=0
+          for c in $(git rev-list --no-merges "$range" 2>/dev/null || git rev-list --no-merges -1 "$AFTER"); do
+            author=$(git log -1 --format='%an' "$c")
+            case "$author" in *"[bot]"*) continue;; esac
+            if ! git log -1 --format='%B' "$c" | grep -q '^Made-with: '; then
+              echo "::error::Commit $c ($(git log -1 --format='%s' "$c")) has no Made-with line. See AGENTS.md."
+              missing=1
+            fi
+          done
+          exit $missing
