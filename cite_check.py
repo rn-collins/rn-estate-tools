@@ -40,8 +40,9 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 
 # Crossref and NCBI both ask for a contact address; being polite buys headroom.
-CONTACT = os.environ.get("CITE_CHECK_CONTACT", "collins.ra@husky.neu.edu")
-UA = f"cite-check/1.0 (+https://github.com/rn-collins; mailto:{CONTACT})"
+# Set CITE_CHECK_CONTACT locally to add a mailto; no address is kept in this public repo.
+CONTACT = os.environ.get("CITE_CHECK_CONTACT", "")
+UA = f"cite-check/1.0 (+https://rn-selected-work.vercel.app/contact" + (f"; mailto:{CONTACT})" if CONTACT else ")")
 BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
 
